@@ -7,13 +7,67 @@
     <link rel="stylesheet" href="styles.css">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="videos-data.js"></script>
+    <style>
+        /* Встроенные базовые стили на случай проблем с загрузкой CSS */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            color: #ffffff;
+            background-color: #0d0d0d;
+            margin: 0;
+            padding: 0;
+        }
+        .page-title {
+            text-align: center;
+            padding: 15px 0;
+            font-size: 20px;
+            color: #ff0000;
+            background-color: #121721;
+            margin-bottom: 0;
+        }
+        .video-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 4px;
+            padding: 4px;
+        }
+        .video-preview {
+            position: relative;
+            aspect-ratio: 1/1;
+            border: 2px solid transparent;
+            border-radius: 4px;
+            overflow: hidden;
+            cursor: pointer;
+            background-color: #ffffff;
+        }
+        .video-preview.selected {
+            border-color: #ff0000;
+        }
+        .preview-image {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+        .confirm-button {
+            display: block;
+            width: 100%;
+            padding: 14px;
+            background-color: #ff0000;
+            color: #ffffff;
+            border: none;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            text-align: center;
+            text-transform: uppercase;
+            margin-top: 20px;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
         <h1 class="page-title">Выберите шаблон</h1>
         <div class="video-grid" id="videoGrid">
-            <!-- Здесь будут отображаться превью видео в сетке 2x2 -->
-            <!-- Сетка будет заполнена динамически с помощью JavaScript -->
+            <!-- Видео будут добавлены через JavaScript -->
         </div>
         
         <div class="spacer"></div>
@@ -23,6 +77,61 @@
         </div>
     </div>
 
+    <script>
+    // Встроенный скрипт для отладки
+    document.addEventListener('DOMContentLoaded', function() {
+        // Telegram Web App
+        if (window.Telegram && window.Telegram.WebApp) {
+            let tg = window.Telegram.WebApp;
+            tg.ready();
+            tg.expand();
+        }
+        
+        // Загрузка видео
+        if (typeof videoData !== 'undefined' && Array.isArray(videoData)) {
+            const grid = document.getElementById('videoGrid');
+            videoData.forEach(video => {
+                const div = document.createElement('div');
+                div.className = 'video-preview';
+                div.setAttribute('data-id', video.id);
+                div.innerHTML = `
+                    <img class="preview-image" src="${video.preview_url}" alt="${video.title}">
+                `;
+                div.addEventListener('click', () => {
+                    localStorage.setItem('selectedVideoId', video.id);
+                    window.location.href = `video.html?id=${video.id}`;
+                });
+                grid.appendChild(div);
+            });
+            
+            // Проверка выбранного ранее видео
+            const savedId = localStorage.getItem('selectedVideoId');
+            if (savedId) {
+                const selected = document.querySelector(`.video-preview[data-id="${savedId}"]`);
+                if (selected) selected.classList.add('selected');
+            }
+        } else {
+            console.error('Данные о видео не загружены');
+        }
+        
+        // Настройка кнопки
+        document.getElementById('mainConfirmButton').addEventListener('click', function() {
+            const selectedId = localStorage.getItem('selectedVideoId');
+            if (selectedId && window.Telegram && window.Telegram.WebApp) {
+                const selectedVideo = videoData.find(v => v.id === selectedId);
+                if (selectedVideo) {
+                    window.Telegram.WebApp.sendData(JSON.stringify({
+                        selected_video_id: selectedVideo.id,
+                        selected_video_title: selectedVideo.title
+                    }));
+                    window.Telegram.WebApp.close();
+                }
+            } else {
+                alert('Пожалуйста, выберите шаблон');
+            }
+        });
+    });
+    </script>
     <script src="app.js"></script>
 </body>
 </html> 
