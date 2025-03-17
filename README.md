@@ -1,59 +1,91 @@
-<header>
+# Telegram Mini App - Каталог видео
 
-<!--
-  <<< Author notes: Course header >>>
-  Include a 1280×640 image, course title in sentence case, and a concise description in emphasis.
-  In your repository settings: enable template repository, add your 1280×640 social image, auto delete head branches.
-  Add your open source license, GitHub uses MIT license.
--->
+Это Telegram Mini App для просмотра и выбора видео из каталога. Приложение открывается по нажатию на кнопку в Telegram-боте и позволяет пользователю:
 
-# GitHub Pages
+1. Просматривать список доступных видео
+2. Открывать выбранное видео для просмотра подробной информации
+3. Отправлять информацию о выбранном видео обратно в бот
 
-_Create a site or blog from your GitHub repositories with GitHub Pages._
+## Структура проекта
 
-</header>
+- `index.html` - главная страница со списком превью видео
+- `video.html` - страница просмотра выбранного видео
+- `styles.css` - стили для оформления приложения
+- `app.js` - JavaScript для главной страницы
+- `video.js` - JavaScript для страницы просмотра видео
+- `videos-data.js` - файл с тестовыми данными о видео
 
-<!--
-  <<< Author notes: Step 2 >>>
-  Start this step by acknowledging the previous step.
-  Define terms and link to docs.github.com.
-  Historic note: previous version checked for empty pull request, changed to the correct theme `minima`.
--->
+## Использование в Telegram-боте
 
-## Step 2: Configure your site
+Для интеграции Mini App с ботом необходимо:
 
-_You turned on GitHub Pages! :tada:_
+1. Загрузить все файлы проекта на веб-сервер с поддержкой HTTPS
+2. Зарегистрировать Mini App через @BotFather, указав URL вашего приложения
+3. Добавить кнопку для открытия Mini App в бота
 
-We'll work in a branch, `my-pages`, that I created for you to get this site looking great. :sparkle:
+### Пример кнопки для открытия Mini App в боте (Python, aiogram):
 
-Jekyll uses a file titled `_config.yml` to store settings for your site, your theme, and reusable content like your site title and GitHub handle. You can check out the `_config.yml` file on the **Code** tab of your repository.
+```python
+from aiogram import Bot, Dispatcher, types
+from aiogram.types import WebAppInfo
 
-We need to use a blog-ready theme. For this activity, we will use a theme named "minima".
+# Создаем кнопку для открытия Mini App
+webapp_button = types.KeyboardButton(
+    text="Открыть каталог видео", 
+    web_app=WebAppInfo(url="https://ваш-домен.com/путь-к-мини-аппу/")
+)
 
-### :keyboard: Activity: Configure your site
+# Создаем клавиатуру с этой кнопкой
+keyboard = types.ReplyKeyboardMarkup(
+    keyboard=[[webapp_button]], 
+    resize_keyboard=True
+)
 
-1. Browse to the `_config.yml` file in the `my-pages` branch.
-1. In the upper right corner, open the file editor.
-1. Add a `theme:` set to **minima** so it shows in the `_config.yml` file as below:
-   ```yml
-   theme: minima
-   ```
-1. (optional) You can modify the other configuration variables such as `title:`, `author:`, and `description:` to further customize your site.
-1. Commit your changes.
-1. (optional) Create a pull request to view all the changes you'll make throughout this course. Click the **Pull Requests** tab, click **New pull request**, set `base: main` and `compare:my-pages`.
-1. Wait about 20 seconds then refresh this page (the one you're following instructions from). [GitHub Actions](https://docs.github.com/en/actions) will automatically update to the next step.
+# Отправляем сообщение с клавиатурой
+@dp.message_handler(commands=["start"])
+async def cmd_start(message: types.Message):
+    await message.answer(
+        "Нажмите на кнопку ниже, чтобы открыть каталог видео:", 
+        reply_markup=keyboard
+    )
+```
 
-<footer>
+## Обработка данных от Mini App
 
-<!--
-  <<< Author notes: Footer >>>
-  Add a link to get support, GitHub status page, code of conduct, license link.
--->
+Когда пользователь нажимает кнопку "Подтвердить" в Mini App, информация о выбранном видео отправляется обратно в бот в формате JSON:
 
----
+```json
+{
+  "selected_video_id": "идентификатор_видео",
+  "selected_video_title": "Название видео"
+}
+```
 
-Get help: [Post in our discussion board](https://github.com/orgs/skills/discussions/categories/github-pages) &bull; [Review the GitHub status page](https://www.githubstatus.com/)
+### Пример обработки данных в боте (Python, aiogram):
 
-&copy; 2023 GitHub &bull; [Code of Conduct](https://www.contributor-covenant.org/version/2/1/code_of_conduct/code_of_conduct.md) &bull; [MIT License](https://gh.io/mit)
+```python
+@dp.message_handler(content_types=types.ContentTypes.WEB_APP_DATA)
+async def web_app_data(message: types.Message):
+    # Получаем данные от Mini App
+    data = json.loads(message.web_app_data.data)
+    
+    # Извлекаем информацию о выбранном видео
+    video_id = data.get("selected_video_id")
+    video_title = data.get("selected_video_title")
+    
+    # Отправляем ответ пользователю
+    await message.answer(f"Вы выбрали видео: {video_title} (ID: {video_id})")
+```
 
-</footer>
+## Настройка данных
+
+Для использования своих видео замените массив `videoData` в файле `videos-data.js` на свои данные в том же формате.
+
+## Требования
+
+- Современный веб-браузер с поддержкой JavaScript и CSS3
+- Веб-сервер с поддержкой HTTPS (требование Telegram для Mini Apps)
+
+## Лицензия
+
+Это приложение распространяется под лицензией MIT. 
