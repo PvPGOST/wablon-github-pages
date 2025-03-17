@@ -3,17 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Видео каталог</title>
+    <title>Выберите шаблон</title>
     <link rel="stylesheet" href="styles.css">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="videos-data.js"></script>
 </head>
 <body>
     <div class="container">
-        <h1 class="page-title">Каталог видео</h1>
-        <div class="video-list" id="videoList">
-            <!-- Здесь будут отображаться превью видео -->
-            <!-- Список будет заполнен динамически с помощью JavaScript -->
+        <h1 class="page-title">Выберите шаблон</h1>
+        <div class="video-grid" id="videoGrid">
+            <!-- Здесь будут отображаться превью видео в сетке 2x2 -->
+            <!-- Сетка будет заполнена динамически с помощью JavaScript -->
+        </div>
+        
+        <div class="spacer"></div>
+        
+        <div class="footer">
+            <button class="confirm-button" id="mainConfirmButton">ВЫБРАТЬ ШАБЛОН</button>
         </div>
     </div>
 

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Просмотр видео</title>
+    <title>Видео</title>
     <link rel="stylesheet" href="styles.css">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="videos-data.js"></script>
@@ -11,10 +11,8 @@
 <body>
     <div class="container">
         <div class="back-button" id="backButton">
-            <span>← Назад</span>
+            <span>Назад</span>
         </div>
-        
-        <h1 class="video-title" id="videoTitle">Загрузка...</h1>
         
         <div class="video-player-container">
             <div class="video-player" id="videoPlayer">
@@ -22,11 +20,16 @@
             </div>
         </div>
         
-        <div class="video-description" id="videoDescription">
-            Загрузка описания...
+        <div class="video-info">
+            <div class="video-number" id="videoNumber">Номер</div>
+            <div class="video-instruction">Нажмите кнопку "Продолжить"</div>
         </div>
         
-        <button class="confirm-button" id="confirmButton">Подтвердить</button>
+        <div class="spacer"></div>
+        
+        <div class="footer">
+            <button class="confirm-button" id="confirmButton">ВЫБРАТЬ ШАБЛОН</button>
+        </div>
     </div>
 
     <script src="video.js"></script>

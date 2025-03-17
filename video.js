@@ -25,15 +25,14 @@ function findVideoById(id) {
 function displayVideo(video) {
     if (!video) {
         // Если видео не найдено, показываем сообщение об ошибке
-        document.getElementById('videoTitle').textContent = 'Видео не найдено';
+        document.getElementById('videoNumber').textContent = 'Видео не найдено';
         document.getElementById('videoPlayer').innerHTML = '<p class="error-message">Запрошенное видео не найдено или недоступно.</p>';
-        document.getElementById('videoDescription').textContent = '';
         document.getElementById('confirmButton').style.display = 'none';
         return;
     }
     
-    // Устанавливаем заголовок видео
-    document.getElementById('videoTitle').textContent = video.title;
+    // Устанавливаем номер видео
+    document.getElementById('videoNumber').textContent = `Номер ${video.id.replace('video', '')}`;
     
     // Отображаем плеер видео в зависимости от типа URL
     const videoPlayerElement = document.getElementById('videoPlayer');
@@ -42,14 +41,22 @@ function displayVideo(video) {
         // YouTube видео
         videoPlayerElement.innerHTML = `
             <iframe 
-                src="${video.video_url}" 
+                src="${video.video_url}?autoplay=1" 
+                allowfullscreen>
+            </iframe>
+        `;
+    } else if (video.video_url.includes('player.vimeo.com')) {
+        // Vimeo видео
+        videoPlayerElement.innerHTML = `
+            <iframe 
+                src="${video.video_url}?autoplay=1" 
                 allowfullscreen>
             </iframe>
         `;
     } else if (video.video_url.endsWith('.mp4') || video.video_url.endsWith('.webm') || video.video_url.endsWith('.ogg')) {
         // HTML5 видео
         videoPlayerElement.innerHTML = `
-            <video controls>
+            <video autoplay controls>
                 <source src="${video.video_url}" type="video/${video.video_url.split('.').pop()}">
                 Ваш браузер не поддерживает видео.
             </video>
@@ -63,9 +70,6 @@ function displayVideo(video) {
             </iframe>
         `;
     }
-    
-    // Отображаем описание видео
-    document.getElementById('videoDescription').textContent = video.description;
 }
 
 // Функция для обработки нажатия на кнопку "Подтвердить"
