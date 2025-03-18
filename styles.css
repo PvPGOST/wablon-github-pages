@@ -79,17 +79,40 @@ body {
 }
 
 /* Стили для страницы просмотра видео */
+.navigation-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding: 0;
+    background-color: #121721;
+}
+
 .back-button {
     display: inline-block;
     margin: 10px;
-    padding: 8px 15px; /* Добавляем боковые отступы */
+    padding: 8px 15px;
     cursor: pointer;
     color: #000000; /* Меняем на черный текст */
-    background-color: #ff0000; /* Красный фон для кнопки */
+    background-color: #ff0000;
     font-weight: 500;
     position: relative;
-    border-radius: 4px; /* Закругленные углы */
-    width: auto; /* Авто-ширина вместо fit-content */
+    border-radius: 4px;
+    width: auto;
+}
+
+/* Стили для кнопки "Следующее" */
+.next-button {
+    display: inline-block;
+    margin: 10px;
+    padding: 8px 15px;
+    cursor: pointer;
+    color: #000000;
+    background-color: #ff0000;
+    font-weight: 500;
+    position: relative;
+    border-radius: 4px;
+    width: auto;
 }
 
 /* Удаляем красную линию под текстом, так как сама кнопка теперь красная */
@@ -154,7 +177,8 @@ body {
     opacity: 0.9;
 }
 
-/* Стили для скрытия элементов управления видео */
+/* Удаляем стили, скрывающие элементы управления */
+/*
 video::-webkit-media-controls {
     opacity: 0;
     pointer-events: none;
@@ -165,12 +189,23 @@ video::-webkit-media-controls-enclosure {
     pointer-events: none;
 }
 
-/* Показываем элементы управления только при наведении */
 video:hover::-webkit-media-controls-enclosure,
 video:hover::-webkit-media-controls {
     opacity: 1;
     pointer-events: auto;
     transition: opacity 0.3s;
+}
+*/
+
+/* Стили для элементов управления видео, которые всегда видны */
+video::-webkit-media-controls {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+video::-webkit-media-controls-enclosure {
+    opacity: 1;
+    pointer-events: auto;
 }
 
 /* Дополнительные стили для видео */

@@ -92,11 +92,22 @@
         video::-webkit-media-controls-start-playback-button {
             display: none !important;
         }
+        /* Стили для навигационных кнопок */
+        .navigation-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            padding: 0;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <div id="backButton" class="back-button">Назад</div>
+        <div class="navigation-bar">
+            <div id="backButton" class="back-button">Назад</div>
+            <div id="nextButton" class="next-button">Следующее</div>
+        </div>
         
         <div class="video-player-container">
             <div id="videoPlayer" class="video-player"></div>

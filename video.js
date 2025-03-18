@@ -172,11 +172,12 @@ function displayVideo(video) {
     
     // Проверяем тип ссылки на видео
     if (video.video_url.includes('cloudinary.com')) {
-        // Для Cloudinary используем HTML5 video тег напрямую, убираем controls - они скроются после начала воспроизведения
+        // Для Cloudinary используем HTML5 video тег, добавляем controls для управления
         playerContainer.innerHTML = `
             <div style="position: relative; width: 100%; height: 100%; min-height: 250px; background-color: #000; border: none !important;">
                 <video 
                     id="cloudinaryVideo"
+                    controls
                     playsinline
                     muted
                     loop
@@ -198,57 +199,48 @@ function displayVideo(video) {
             // Запускаем воспроизведение один раз
             videoElement.play().catch(error => {
                 console.error('Ошибка автовоспроизведения:', error);
-                // Если не удалось автоматически запустить, добавляем controls и обработчик ошибки
-                videoElement.controls = true;
                 handleVideoError(videoElement, 'Нажмите на видео для воспроизведения');
             });
             
-            // Добавляем обработчик клика для скрытия/показа controls
-            videoElement.addEventListener('click', function() {
-                if (this.paused) {
-                    this.play();
-                    this.controls = false;
-                } else {
-                    this.controls = !this.controls;
-                    // Если показали controls, через 3 секунды скрываем их при воспроизведении
-                    if (this.controls && !this.paused) {
-                        setTimeout(() => {
-                            if (!this.paused) this.controls = false;
-                        }, 3000);
-                    }
-                }
+            // Упрощаем обработчик клика на видео
+            let isVideoClicked = false;
+            
+            videoElement.addEventListener('click', function(e) {
+                // Не делаем ничего при клике, пусть браузер сам обрабатывает клики
+                // на элементах управления через стандартный интерфейс controls
+                
+                // Помечаем, что был клик для обработчика двойного клика
+                isVideoClicked = true;
+                setTimeout(() => { isVideoClicked = false; }, 300);
             });
             
-            // Автоматически скрываем controls через 2 секунды после начала воспроизведения
-            videoElement.addEventListener('playing', function() {
-                setTimeout(() => {
-                    if (!this.paused) this.controls = false;
-                }, 2000);
-            });
+            // Добавляем функционал полноэкранного режима по двойному клику
+            setupFullscreenOnDoubleClick(videoElement);
         }
     } else if (video.video_url.includes('youtube.com') || video.video_url.includes('vimeo.com')) {
         // Для YouTube и Vimeo используем iframe с автовоспроизведением
-        // Добавляем параметр autoplay=1 к URL и оставляем muted=1
+        // Для этих платформ оставляем controls=1, чтобы пользователь мог взаимодействовать
         let videoSrc = video.video_url;
         if (videoSrc.includes('youtube.com')) {
             // Для YouTube
             if (videoSrc.includes('?')) {
-                videoSrc += '&autoplay=1&mute=1&loop=1&controls=0';
+                videoSrc += '&autoplay=1&mute=1&loop=1&controls=1';
             } else {
-                videoSrc += '?autoplay=1&mute=1&loop=1&controls=0';
+                videoSrc += '?autoplay=1&mute=1&loop=1&controls=1';
             }
         } else if (videoSrc.includes('vimeo.com')) {
             // Для Vimeo
             if (videoSrc.includes('?')) {
-                videoSrc += '&autoplay=1&muted=1&loop=1&controls=0';
+                videoSrc += '&autoplay=1&muted=1&loop=1&controls=1';
             } else {
-                videoSrc += '?autoplay=1&muted=1&loop=1&controls=0';
+                videoSrc += '?autoplay=1&muted=1&loop=1&controls=1';
             }
         }
         
         playerContainer.innerHTML = `
             <div style="position: relative; width: 100%; height: 100%; min-height: 250px; background-color: #000; border: none !important;">
                 <iframe 
+                    id="iframeVideo"
                     width="100%" 
                     height="100%"
                     style="display: block; min-height: 250px; border: none !important;"
@@ -259,12 +251,32 @@ function displayVideo(video) {
                 </iframe>
             </div>
         `;
+        
+        // Для iframe нужна особая обработка полноэкранного режима
+        const iframeElement = document.getElementById('iframeVideo');
+        if (iframeElement) {
+            // Добавляем наложение для двойного клика
+            const overlayDiv = document.createElement('div');
+            overlayDiv.style.position = 'absolute';
+            overlayDiv.style.top = '0';
+            overlayDiv.style.left = '0';
+            overlayDiv.style.width = '100%';
+            overlayDiv.style.height = '100%';
+            overlayDiv.style.zIndex = '10';
+            overlayDiv.style.cursor = 'pointer';
+            
+            iframeElement.parentNode.appendChild(overlayDiv);
+            
+            // Обработчик двойного клика для iframe
+            setupFullscreenOnDoubleClick(overlayDiv, iframeElement);
+        }
     } else {
         // Для остальных видео пробуем стандартный HTML5 video тег
         playerContainer.innerHTML = `
             <div style="position: relative; width: 100%; height: 100%; min-height: 250px; background-color: #000; border: none !important;">
                 <video 
                     id="regularVideo"
+                    controls
                     playsinline
                     muted
                     loop
@@ -286,33 +298,23 @@ function displayVideo(video) {
             // Запускаем воспроизведение один раз
             videoElement.play().catch(error => {
                 console.error('Ошибка автовоспроизведения:', error);
-                // Если не удалось автоматически запустить, добавляем controls и обработчик ошибки
-                videoElement.controls = true;
                 handleVideoError(videoElement, 'Нажмите на видео для воспроизведения');
             });
             
-            // Добавляем обработчик клика для скрытия/показа controls
-            videoElement.addEventListener('click', function() {
-                if (this.paused) {
-                    this.play();
-                    this.controls = false;
-                } else {
-                    this.controls = !this.controls;
-                    // Если показали controls, через 3 секунды скрываем их при воспроизведении
-                    if (this.controls && !this.paused) {
-                        setTimeout(() => {
-                            if (!this.paused) this.controls = false;
-                        }, 3000);
-                    }
-                }
+            // Упрощаем обработчик клика на видео
+            let isVideoClicked = false;
+            
+            videoElement.addEventListener('click', function(e) {
+                // Не делаем ничего при клике, пусть браузер сам обрабатывает клики
+                // на элементах управления через стандартный интерфейс controls
+                
+                // Помечаем, что был клик для обработчика двойного клика
+                isVideoClicked = true;
+                setTimeout(() => { isVideoClicked = false; }, 300);
             });
             
-            // Автоматически скрываем controls через 2 секунды после начала воспроизведения
-            videoElement.addEventListener('playing', function() {
-                setTimeout(() => {
-                    if (!this.paused) this.controls = false;
-                }, 2000);
-            });
+            // Добавляем функционал полноэкранного режима по двойному клику
+            setupFullscreenOnDoubleClick(videoElement);
         }
     }
 }
@@ -365,6 +367,9 @@ function initVideoPage() {
     setupConfirmButton(video);
     setupBackButton();
     
+    // Настройка кнопки "Следующее"
+    setupNextButton(video);
+    
     // Дополнительная функция для принудительного удаления рамок
     removeAllBorders();
 }
@@ -403,6 +408,101 @@ function removeAllBorders() {
         });
         
     }, 500); // Задержка в 500мс для уверенности
+}
+
+// Функция для настройки кнопки "Следующее"
+function setupNextButton(currentVideo) {
+    const nextButton = document.getElementById('nextButton');
+    if (!nextButton) return;
+    
+    nextButton.addEventListener('click', function() {
+        // Находим следующее видео
+        const nextVideo = findNextVideo(currentVideo);
+        if (nextVideo) {
+            // Переходим на страницу с следующим видео
+            window.location.href = `video.html?id=${nextVideo.id}`;
+        } else {
+            console.log('Это последнее видео в списке');
+            // Можно добавить визуальное оповещение, что это последнее видео
+            nextButton.style.opacity = '0.5';
+            nextButton.style.cursor = 'default';
+            
+            // Возвращаем нормальный стиль через секунду
+            setTimeout(() => {
+                nextButton.style.opacity = '';
+                nextButton.style.cursor = '';
+            }, 1000);
+        }
+    });
+}
+
+// Функция для поиска следующего видео
+function findNextVideo(currentVideo) {
+    if (!currentVideo || typeof videoData === 'undefined' || !Array.isArray(videoData)) {
+        return null;
+    }
+    
+    // Находим индекс текущего видео
+    const currentIndex = videoData.findIndex(video => video.id === currentVideo.id);
+    
+    // Если нашли и это не последнее видео, возвращаем следующее
+    if (currentIndex !== -1 && currentIndex < videoData.length - 1) {
+        return videoData[currentIndex + 1];
+    }
+    
+    // Если это последнее видео, можно вернуть первое для зацикливания
+    if (currentIndex === videoData.length - 1) {
+        return videoData[0];
+    }
+    
+    return null;
+}
+
+// Функция настройки полноэкранного режима по двойному клику
+function setupFullscreenOnDoubleClick(element, targetElement) {
+    // Если targetElement не передан, используем сам element
+    const fullscreenTarget = targetElement || element;
+    
+    // Переменная для отслеживания двойного клика
+    let lastClickTime = 0;
+    const doubleClickDelay = 300; // мс
+    
+    element.addEventListener('dblclick', function(e) {
+        // Переключаем полноэкранный режим при двойном клике
+        toggleFullScreen(fullscreenTarget);
+        e.preventDefault();
+        e.stopPropagation(); // Предотвращаем всплытие события
+    });
+}
+
+// Функция для переключения полноэкранного режима
+function toggleFullScreen(element) {
+    if (!document.fullscreenElement && 
+        !document.mozFullScreenElement && 
+        !document.webkitFullscreenElement && 
+        !document.msFullscreenElement) {
+        // Переходим в полноэкранный режим
+        if (element.requestFullscreen) {
+            element.requestFullscreen();
+        } else if (element.msRequestFullscreen) {
+            element.msRequestFullscreen();
+        } else if (element.mozRequestFullScreen) {
+            element.mozRequestFullScreen();
+        } else if (element.webkitRequestFullscreen) {
+            element.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
+        }
+    } else {
+        // Выходим из полноэкранного режима
+        if (document.exitFullscreen) {
+            document.exitFullscreen();
+        } else if (document.msExitFullscreen) {
+            document.msExitFullscreen();
+        } else if (document.mozCancelFullScreen) {
+            document.mozCancelFullScreen();
+        } else if (document.webkitExitFullscreen) {
+            document.webkitExitFullscreen();
+        }
+    }
 }
 
 // Запускаем инициализацию при загрузке страницы
