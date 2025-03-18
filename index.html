@@ -37,20 +37,20 @@
                     <img src="${video.preview_url}" alt="${video.title}">
                 `;
                 div.addEventListener('click', () => {
+                    // Убираем подсветку со всех элементов перед новым выбором
+                    document.querySelectorAll('.video-preview').forEach(el => {
+                        el.classList.remove('selected');
+                    });
+                    
+                    // Сохраняем ID выбранного видео и переходим на страницу просмотра
                     localStorage.setItem('selectedVideoId', video.id);
                     window.location.href = `video.html?id=${video.id}`;
                 });
                 grid.appendChild(div);
             });
             
-            // Проверка выбранного ранее видео
-            const savedId = localStorage.getItem('selectedVideoId');
-            if (savedId) {
-                const savedElement = document.querySelector(`.video-preview[data-id="${savedId}"]`);
-                if (savedElement) {
-                    savedElement.classList.add('selected');
-                }
-            }
+            // Убираем проверку и подсветку ранее выбранного видео
+            // Это предотвратит подсветку при возврате на главную страницу
         } else {
             console.error('Данные о видео не загружены или имеют неверный формат.');
         }
