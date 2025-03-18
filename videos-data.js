@@ -3,7 +3,7 @@ const videoData = [
   {
     "id": "video1",
     "preview_url": "https://i.ibb.co/mC4Lx2zT/le-N3-Sl-Cg16-U.jpg",
-    "video_url": "https://res.cloudinary.com/dg9ievxml/video/upload/v1711066740694/08625cfac2e5a5287696e9d94d795d60.mp4",
+    "video_url": "https://res.cloudinary.com/dg9ievxml/video/upload/c_fill,h_540,w_960/08625cfac2e5a5287696e9d94d795d60.mp4",
     "title": "Белые кроссовки Nike",
     "description": "Стильные белые кроссовки для повседневного ношения"
   },
