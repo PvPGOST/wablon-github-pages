@@ -9,7 +9,7 @@ const videoData = [
   },
   {
     "id": "video2",
-    "preview_url": "https://i.ibb.co/6RwzDzy/photo-2025-03-01-04-59-22.jpg",
+    "preview_url": "https://i.ibb.co/6RwzDzyH/photo-2025-03-01-04-59-22.jpg",
     "video_url": "https://res.cloudinary.com/dg9ievxml/video/upload/v1742259893/ff6e3e0b_qu3lha.mp4",
     "title": "Видео 2",
     "description": "Хочет спиздеть"
