@@ -212,14 +212,6 @@ function displayVideo(video) {
                 }
             });
             
-            videoElement.addEventListener('dblclick', function() {
-                if (document.fullscreenElement) {
-                    document.exitFullscreen();
-                } else {
-                    this.requestFullscreen();
-                }
-            });
-            
             videoElement.addEventListener('error', function(e) {
                 console.error('Ошибка загрузки видео:', e);
                 showError('Не удалось загрузить видео. Пожалуйста, попробуйте позже.');
