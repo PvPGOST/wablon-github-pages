@@ -49,6 +49,44 @@ function handleVideoError(videoElement, errorMessage) {
     });
 }
 
+// Функция для адаптации видео под его ориентацию
+function adaptVideoOrientation(videoElement) {
+    if (!videoElement) return;
+    
+    // Добавляем плавный переход для изменения размеров
+    videoElement.style.transition = 'width 0.3s, height 0.3s';
+    
+    videoElement.addEventListener('loadedmetadata', function() {
+        // Получаем реальные размеры видео
+        const videoWidth = videoElement.videoWidth;
+        const videoHeight = videoElement.videoHeight;
+        
+        // Определяем ориентацию
+        const isVertical = videoHeight > videoWidth;
+        console.log(`Ориентация видео: ${isVertical ? 'вертикальная' : 'горизонтальная'}, размеры: ${videoWidth}x${videoHeight}`);
+        
+        if (isVertical) {
+            // Вертикальное видео
+            videoElement.style.width = 'auto';
+            videoElement.style.height = 'auto';
+            videoElement.style.maxHeight = '80vh';
+            videoElement.style.maxWidth = '90%';
+            
+            // Центрируем видео
+            if (videoElement.parentNode) {
+                videoElement.parentNode.style.display = 'flex';
+                videoElement.parentNode.style.justifyContent = 'center';
+                videoElement.parentNode.style.alignItems = 'center';
+            }
+        } else {
+            // Горизонтальное видео
+            videoElement.style.width = '100%';
+            videoElement.style.height = 'auto';
+            videoElement.style.maxHeight = 'none';
+        }
+    });
+}
+
 // Функция для отображения видео и его информации
 function displayVideo(video) {
     if (!video) {
@@ -69,7 +107,7 @@ function displayVideo(video) {
     if (video.video_url.includes('cloudinary.com')) {
         // Для Cloudinary используем HTML5 video тег напрямую
         playerContainer.innerHTML = `
-            <div style="position: relative; width: 100%; height: 100%; min-height: 250px; background-color: #000; border: 2px solid #ff0000; border-radius: 4px;">
+            <div style="position: relative; width: 100%; height: 100%; min-height: 250px; background-color: #000;">
                 <video 
                     id="cloudinaryVideo"
                     controls 
@@ -78,15 +116,14 @@ function displayVideo(video) {
                     muted
                     preload="auto"
                     width="100%" 
-                    height="100%"
-                    style="display: block; min-height: 250px;">
+                    style="display: block; min-height: 250px; max-width: 100%; margin: 0 auto;">
                     <source src="${video.video_url}" type="video/mp4">
                     Ваш браузер не поддерживает видео.
                 </video>
             </div>
         `;
         
-        // Дополнительная проверка воспроизведения
+        // Дополнительная проверка воспроизведения и адаптация под ориентацию
         setTimeout(() => {
             const videoElement = document.getElementById('cloudinaryVideo');
             if (videoElement) {
@@ -95,6 +132,10 @@ function displayVideo(video) {
                     videoElement.muted = false;
                 });
                 
+                // Обработка воспроизведения и адаптация под ориентацию
+                adaptVideoOrientation(videoElement);
+                
+                // Запускаем воспроизведение
                 videoElement.play().catch(error => {
                     console.error('Ошибка воспроизведения видео:', error);
                     handleVideoError(videoElement, 'Ошибка воспроизведения видео. Нажмите для повторной попытки.');
@@ -104,7 +145,7 @@ function displayVideo(video) {
     } else if (video.video_url.includes('youtube.com') || video.video_url.includes('vimeo.com')) {
         // Для YouTube и Vimeo используем iframe
         playerContainer.innerHTML = `
-            <div style="position: relative; width: 100%; height: 100%; min-height: 250px; background-color: #000; border: 2px solid #ff0000; border-radius: 4px;">
+            <div style="position: relative; width: 100%; height: 100%; min-height: 250px; background-color: #000;">
                 <iframe 
                     width="100%" 
                     height="100%"
@@ -119,7 +160,7 @@ function displayVideo(video) {
     } else {
         // Для остальных видео пробуем стандартный HTML5 video тег
         playerContainer.innerHTML = `
-            <div style="position: relative; width: 100%; height: 100%; min-height: 250px; background-color: #000; border: 2px solid #ff0000; border-radius: 4px;">
+            <div style="position: relative; width: 100%; height: 100%; min-height: 250px; background-color: #000;">
                 <video 
                     id="regularVideo"
                     controls 
@@ -128,8 +169,7 @@ function displayVideo(video) {
                     muted
                     preload="auto"
                     width="100%" 
-                    height="100%"
-                    style="display: block; min-height: 250px;">
+                    style="display: block; min-height: 250px; max-width: 100%; margin: 0 auto;">
                     <source src="${video.video_url}" type="video/mp4">
                     Ваш браузер не поддерживает видео.
                 </video>
@@ -145,6 +185,10 @@ function displayVideo(video) {
                     videoElement.muted = false;
                 });
                 
+                // Обработка воспроизведения и адаптация под ориентацию
+                adaptVideoOrientation(videoElement);
+                
+                // Запускаем воспроизведение
                 videoElement.play().catch(error => {
                     console.error('Ошибка воспроизведения видео:', error);
                     handleVideoError(videoElement, 'Ошибка воспроизведения видео. Нажмите для повторной попытки.');
