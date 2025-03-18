@@ -91,12 +91,14 @@
             text-transform: uppercase;
             margin-top: 15px;
             margin-bottom: 20px;
+            position: relative;
         }
         .spacer {
-            flex-grow: 1;
+            flex-grow: 0;
+            height: 20px;
         }
         .footer {
-            margin-top: auto;
+            margin-top: 0;
         }
     </style>
 </head>
@@ -114,13 +116,9 @@
         
         <div class="video-info">
             <div class="video-number" id="videoNumber">Номер</div>
-            <div class="video-instruction">Нажмите кнопку "Продолжить"</div>
+            <div class="video-instruction">Танец победителя</div>
             <button class="confirm-button" id="confirmButton">ВЫБРАТЬ ШАБЛОН</button>
         </div>
-        
-        <div class="spacer"></div>
-        
-        <div class="footer"></div>
     </div>
 
     <script src="video.js"></script>
