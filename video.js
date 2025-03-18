@@ -56,6 +56,10 @@ function adaptVideoOrientation(videoElement) {
     // Добавляем плавный переход для изменения размеров
     videoElement.style.transition = 'width 0.3s, height 0.3s';
     
+    // Применяем стили по умолчанию для вертикального видео (на случай, если не сработает детект по метаданным)
+    // Это нужно для телефонов, когда они не могут получить метаданные из-за CORS или других ограничений
+    applyVerticalVideoStyles(videoElement);
+    
     videoElement.addEventListener('loadedmetadata', function() {
         // Получаем реальные размеры видео
         const videoWidth = videoElement.videoWidth;
@@ -66,25 +70,55 @@ function adaptVideoOrientation(videoElement) {
         console.log(`Ориентация видео: ${isVertical ? 'вертикальная' : 'горизонтальная'}, размеры: ${videoWidth}x${videoHeight}`);
         
         if (isVertical) {
-            // Вертикальное видео
-            videoElement.style.width = 'auto';
-            videoElement.style.height = 'auto';
-            videoElement.style.maxHeight = '80vh';
-            videoElement.style.maxWidth = '90%';
-            
-            // Центрируем видео
-            if (videoElement.parentNode) {
-                videoElement.parentNode.style.display = 'flex';
-                videoElement.parentNode.style.justifyContent = 'center';
-                videoElement.parentNode.style.alignItems = 'center';
-            }
+            applyVerticalVideoStyles(videoElement);
         } else {
             // Горизонтальное видео
             videoElement.style.width = '100%';
             videoElement.style.height = 'auto';
             videoElement.style.maxHeight = 'none';
+            
+            // Убедимся, что контейнер не имеет рамки
+            const parentDiv = videoElement.closest('div');
+            if (parentDiv) {
+                parentDiv.style.border = 'none';
+            }
+            
+            // Убедимся, что контейнер видеоплеера не имеет рамки
+            const videoPlayerContainer = document.querySelector('.video-player-container');
+            if (videoPlayerContainer) {
+                videoPlayerContainer.style.border = 'none';
+                videoPlayerContainer.style.borderRadius = '0';
+            }
         }
     });
+}
+
+// Отдельная функция для применения стилей вертикального видео
+function applyVerticalVideoStyles(videoElement) {
+    // Вертикальное видео - делаем его максимально подходящим для мобильных экранов
+    videoElement.style.width = '70%';  // Немного уже для лучшего отображения вертикального видео
+    videoElement.style.height = 'auto';
+    videoElement.style.maxHeight = 'calc(100vh - 200px)'; // Вычитаем примерную высоту навигации и прочих элементов
+    videoElement.style.maxWidth = '100%';
+            
+    // Установка дополнительных стилей для контейнера
+    const parentDiv = videoElement.closest('div');
+    if (parentDiv) {
+        parentDiv.style.display = 'flex';
+        parentDiv.style.justifyContent = 'center';
+        parentDiv.style.alignItems = 'center';
+        parentDiv.style.width = '100%';
+        parentDiv.style.height = 'auto';
+        parentDiv.style.maxWidth = '100%';
+        parentDiv.style.border = 'none';
+    }
+            
+    // Убедимся, что контейнер видеоплеера не имеет рамки
+    const videoPlayerContainer = document.querySelector('.video-player-container');
+    if (videoPlayerContainer) {
+        videoPlayerContainer.style.border = 'none';
+        videoPlayerContainer.style.borderRadius = '0';
+    }
 }
 
 // Функция для отображения видео и его информации
@@ -107,7 +141,7 @@ function displayVideo(video) {
     if (video.video_url.includes('cloudinary.com')) {
         // Для Cloudinary используем HTML5 video тег напрямую
         playerContainer.innerHTML = `
-            <div style="position: relative; width: 100%; height: 100%; min-height: 250px; background-color: #000;">
+            <div style="position: relative; width: 100%; height: 100%; min-height: 250px; background-color: #000; border: none !important;">
                 <video 
                     id="cloudinaryVideo"
                     controls 
@@ -116,7 +150,7 @@ function displayVideo(video) {
                     muted
                     preload="auto"
                     width="100%" 
-                    style="display: block; min-height: 250px; max-width: 100%; margin: 0 auto;">
+                    style="display: block; min-height: 250px; max-width: 100%; margin: 0 auto; border: none !important;">
                     <source src="${video.video_url}" type="video/mp4">
                     Ваш браузер не поддерживает видео.
                 </video>
@@ -145,11 +179,11 @@ function displayVideo(video) {
     } else if (video.video_url.includes('youtube.com') || video.video_url.includes('vimeo.com')) {
         // Для YouTube и Vimeo используем iframe
         playerContainer.innerHTML = `
-            <div style="position: relative; width: 100%; height: 100%; min-height: 250px; background-color: #000;">
+            <div style="position: relative; width: 100%; height: 100%; min-height: 250px; background-color: #000; border: none !important;">
                 <iframe 
                     width="100%" 
                     height="100%"
-                    style="display: block; min-height: 250px;"
+                    style="display: block; min-height: 250px; border: none !important;"
                     src="${video.video_url}" 
                     frameborder="0"
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
@@ -160,7 +194,7 @@ function displayVideo(video) {
     } else {
         // Для остальных видео пробуем стандартный HTML5 video тег
         playerContainer.innerHTML = `
-            <div style="position: relative; width: 100%; height: 100%; min-height: 250px; background-color: #000;">
+            <div style="position: relative; width: 100%; height: 100%; min-height: 250px; background-color: #000; border: none !important;">
                 <video 
                     id="regularVideo"
                     controls 
@@ -169,7 +203,7 @@ function displayVideo(video) {
                     muted
                     preload="auto"
                     width="100%" 
-                    style="display: block; min-height: 250px; max-width: 100%; margin: 0 auto;">
+                    style="display: block; min-height: 250px; max-width: 100%; margin: 0 auto; border: none !important;">
                     <source src="${video.video_url}" type="video/mp4">
                     Ваш браузер не поддерживает видео.
                 </video>
@@ -226,7 +260,7 @@ function setupBackButton() {
     });
 }
 
-// Функция инициализации страницы просмотра видео
+// Функция для инициализации страницы просмотра видео
 function initVideoPage() {
     const videoId = getVideoIdFromURL();
     const video = findVideoById(videoId);
@@ -234,6 +268,45 @@ function initVideoPage() {
     displayVideo(video);
     setupConfirmButton(video);
     setupBackButton();
+    
+    // Дополнительная функция для принудительного удаления рамок
+    removeAllBorders();
+}
+
+// Функция для принудительного удаления всех рамок
+function removeAllBorders() {
+    // Ждем немного чтобы DOM успел обновиться
+    setTimeout(() => {
+        // Удаляем рамки у всех видеоэлементов
+        const elements = [
+            '.video-player-container',
+            '.video-player',
+            '.video-player div',
+            '.video-player video',
+            '.video-player iframe',
+            '#videoPlayer',
+            '#videoPlayer div',
+            '#videoPlayer video',
+            '#videoPlayer iframe',
+            '#cloudinaryVideo',
+            '#regularVideo'
+        ];
+        
+        elements.forEach(selector => {
+            const nodeList = document.querySelectorAll(selector);
+            nodeList.forEach(element => {
+                element.style.border = 'none !important';
+                element.style.boxShadow = 'none !important';
+                element.style.borderRadius = '0 !important';
+                
+                // Удаляем класс, который мог бы добавить border
+                if (element.classList) {
+                    element.classList.remove('selected');
+                }
+            });
+        });
+        
+    }, 500); // Задержка в 500мс для уверенности
 }
 
 // Запускаем инициализацию при загрузке страницы
