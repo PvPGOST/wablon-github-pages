@@ -4,8 +4,8 @@ const videoData = [
     "id": "video1",
     "preview_url": "https://i.ibb.co/mC4Lx2zT/le-N3-Sl-Cg16-U.jpg",
     "video_url": "https://res.cloudinary.com/dg9ievxml/video/upload/v1742256575/lwcehpdoflwsdaabp1ea.mp4",
-    "title": "Белые кроссовки Nike",
-    "description": "Стильные белые кроссовки для повседневного ношения"
+    "title": "Танец победителя",
+    "description": "Исполняет как в последний день"
   },
   {
     "id": "video2",
