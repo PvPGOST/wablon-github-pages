@@ -51,7 +51,7 @@ function handleVideoError(videoElement, errorMessage) {
     
     // Обработчик нажатия для повторной попытки воспроизведения
     errorContainer.addEventListener('click', () => {
-        // Сначала убедимся, что видео muted для автовоспроизведения
+        // Убеждаемся, что видео muted для автовоспроизведения
         videoElement.muted = true;
         
         // Затем пробуем воспроизвести
@@ -62,10 +62,7 @@ function handleVideoError(videoElement, errorMessage) {
                 // Удаляем сообщение об ошибке
                 errorContainer.remove();
                 
-                // Отключаем muted через небольшую задержку
-                setTimeout(() => {
-                    videoElement.muted = false;
-                }, 500);
+                // Больше не возвращаем звук, как просил пользователь
             }).catch(err => {
                 console.error('Повторная попытка не удалась:', err);
                 errorContainer.textContent = 'Не удалось запустить видео. Попробуйте еще раз.';
@@ -194,55 +191,35 @@ function displayVideo(video) {
             </div>
         `;
         
-        // Немедленная обработка видео без задержки
+        // Обработка видео
         const videoElement = document.getElementById('cloudinaryVideo');
         if (videoElement) {
-            // Обеспечиваем автовоспроизведение
-            videoElement.muted = true; // Должно быть muted для автовоспроизведения
-            
-            // Отключаем muted как только начнется воспроизведение
-            videoElement.addEventListener('playing', function onPlaying() {
-                setTimeout(() => {
-                    videoElement.muted = false;
-                }, 500);
-                videoElement.removeEventListener('playing', onPlaying);
-            });
-            
             // Обработка воспроизведения и адаптация под ориентацию
             adaptVideoOrientation(videoElement);
             
-            // Запускаем воспроизведение
-            const playPromise = videoElement.play();
-            if (playPromise !== undefined) {
-                playPromise.then(() => {
-                    console.log('Автовоспроизведение началось успешно');
-                }).catch(error => {
-                    console.error('Ошибка автовоспроизведения:', error);
-                    // Повторная попытка воспроизведения с кликом
-                    videoElement.addEventListener('click', function() {
-                        videoElement.play();
-                    });
-                    handleVideoError(videoElement, 'Нажмите на видео для воспроизведения');
-                });
-            }
+            // Запускаем воспроизведение один раз
+            videoElement.play().catch(error => {
+                console.error('Ошибка автовоспроизведения:', error);
+                handleVideoError(videoElement, 'Нажмите на видео для воспроизведения');
+            });
         }
     } else if (video.video_url.includes('youtube.com') || video.video_url.includes('vimeo.com')) {
         // Для YouTube и Vimeo используем iframe с автовоспроизведением
-        // Добавляем параметр autoplay=1 к URL
+        // Добавляем параметр autoplay=1 к URL и оставляем muted=1
         let videoSrc = video.video_url;
         if (videoSrc.includes('youtube.com')) {
             // Для YouTube
             if (videoSrc.includes('?')) {
-                videoSrc += '&autoplay=1&mute=1';
+                videoSrc += '&autoplay=1&mute=1&loop=1';
             } else {
-                videoSrc += '?autoplay=1&mute=1';
+                videoSrc += '?autoplay=1&mute=1&loop=1';
             }
         } else if (videoSrc.includes('vimeo.com')) {
             // Для Vimeo
             if (videoSrc.includes('?')) {
-                videoSrc += '&autoplay=1&muted=1';
+                videoSrc += '&autoplay=1&muted=1&loop=1';
             } else {
-                videoSrc += '?autoplay=1&muted=1';
+                videoSrc += '?autoplay=1&muted=1&loop=1';
             }
         }
         
@@ -279,37 +256,17 @@ function displayVideo(video) {
             </div>
         `;
         
-        // Немедленная обработка видео без задержки
+        // Обработка видео
         const videoElement = document.getElementById('regularVideo');
         if (videoElement) {
-            // Обеспечиваем автовоспроизведение
-            videoElement.muted = true; // Должно быть muted для автовоспроизведения
-            
-            // Отключаем muted как только начнется воспроизведение
-            videoElement.addEventListener('playing', function onPlaying() {
-                setTimeout(() => {
-                    videoElement.muted = false;
-                }, 500);
-                videoElement.removeEventListener('playing', onPlaying);
-            });
-            
             // Обработка воспроизведения и адаптация под ориентацию
             adaptVideoOrientation(videoElement);
             
-            // Запускаем воспроизведение
-            const playPromise = videoElement.play();
-            if (playPromise !== undefined) {
-                playPromise.then(() => {
-                    console.log('Автовоспроизведение началось успешно');
-                }).catch(error => {
-                    console.error('Ошибка автовоспроизведения:', error);
-                    // Повторная попытка воспроизведения с кликом
-                    videoElement.addEventListener('click', function() {
-                        videoElement.play();
-                    });
-                    handleVideoError(videoElement, 'Нажмите на видео для воспроизведения');
-                });
-            }
+            // Запускаем воспроизведение один раз
+            videoElement.play().catch(error => {
+                console.error('Ошибка автовоспроизведения:', error);
+                handleVideoError(videoElement, 'Нажмите на видео для воспроизведения');
+            });
         }
     }
 }
@@ -352,27 +309,10 @@ function initVideoPage() {
         const AudioContext = window.AudioContext || window.webkitAudioContext;
         if (AudioContext) {
             const audioCtx = new AudioContext();
-            console.log('AudioContext успешно инициализирован:', audioCtx.state);
         }
     } catch (e) {
         console.error('Ошибка при инициализации AudioContext:', e);
     }
-    
-    // Устанавливаем обработчик видимости страницы
-    document.addEventListener('visibilitychange', function() {
-        const cloudinaryVideo = document.getElementById('cloudinaryVideo');
-        const regularVideo = document.getElementById('regularVideo');
-        
-        // Если пользователь вернулся на страницу и видео на паузе - запускаем его
-        if (!document.hidden) {
-            if (cloudinaryVideo && cloudinaryVideo.paused) {
-                cloudinaryVideo.play().catch(e => console.log('Не удалось возобновить видео:', e));
-            }
-            if (regularVideo && regularVideo.paused) {
-                regularVideo.play().catch(e => console.log('Не удалось возобновить видео:', e));
-            }
-        }
-    });
     
     // Основные функции инициализации
     displayVideo(video);
@@ -381,30 +321,6 @@ function initVideoPage() {
     
     // Дополнительная функция для принудительного удаления рамок
     removeAllBorders();
-    
-    // Делаем повторную попытку воспроизведения через некоторое время
-    setTimeout(() => {
-        const cloudinaryVideo = document.getElementById('cloudinaryVideo');
-        const regularVideo = document.getElementById('regularVideo');
-        
-        if (cloudinaryVideo && cloudinaryVideo.paused) {
-            cloudinaryVideo.muted = true; // Временно включаем muted
-            cloudinaryVideo.play()
-                .then(() => {
-                    setTimeout(() => { cloudinaryVideo.muted = false; }, 500);
-                })
-                .catch(e => console.error('Ошибка при повторной попытке запуска cloudinaryVideo:', e));
-        }
-        
-        if (regularVideo && regularVideo.paused) {
-            regularVideo.muted = true; // Временно включаем muted
-            regularVideo.play()
-                .then(() => {
-                    setTimeout(() => { regularVideo.muted = false; }, 500);
-                })
-                .catch(e => console.error('Ошибка при повторной попытке запуска regularVideo:', e));
-        }
-    }, 1500);
 }
 
 // Функция для принудительного удаления всех рамок

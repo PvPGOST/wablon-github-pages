@@ -7,59 +7,6 @@
     <link rel="stylesheet" href="styles.css">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="videos-data.js"></script>
-    <style>
-        /* Встроенные базовые стили на случай проблем с загрузкой CSS */
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            color: #ffffff;
-            background-color: #0d0d0d;
-            margin: 0;
-            padding: 0;
-        }
-        .page-title {
-            text-align: center;
-            padding: 15px 0;
-            font-size: 20px;
-            color: #ff0000;
-            background-color: #121721;
-            margin-bottom: 0;
-        }
-        .video-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 4px;
-            padding: 4px;
-        }
-        .video-preview {
-            position: relative;
-            aspect-ratio: 1/1;
-            border: 2px solid #ff0000;
-            border-radius: 4px;
-            overflow: hidden;
-            cursor: pointer;
-            background-color: #ffffff;
-        }
-        /* При наведении применяем одинаковое свечение ко всем превью */
-        .video-preview:hover {
-            transform: scale(1.02);
-            box-shadow: 0 0 8px 2px rgba(255, 0, 0, 0.5);
-        }
-        /* Выбранный элемент получает одинаковое выделение */
-        .video-preview.selected {
-            border-color: #ff0000;
-            box-shadow: 0 0 12px 3px rgba(255, 0, 0, 0.7);
-        }
-        .preview-image {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 0;
-        }
-    </style>
 </head>
 <body>
     <div class="container">
@@ -87,7 +34,7 @@
                 div.className = 'video-preview';
                 div.setAttribute('data-id', video.id);
                 div.innerHTML = `
-                    <img class="preview-image" src="${video.preview_url}" alt="${video.title}">
+                    <img src="${video.preview_url}" alt="${video.title}">
                 `;
                 div.addEventListener('click', () => {
                     localStorage.setItem('selectedVideoId', video.id);
@@ -99,14 +46,15 @@
             // Проверка выбранного ранее видео
             const savedId = localStorage.getItem('selectedVideoId');
             if (savedId) {
-                const selected = document.querySelector(`.video-preview[data-id="${savedId}"]`);
-                if (selected) selected.classList.add('selected');
+                const savedElement = document.querySelector(`.video-preview[data-id="${savedId}"]`);
+                if (savedElement) {
+                    savedElement.classList.add('selected');
+                }
             }
         } else {
-            console.error('Данные о видео не загружены');
+            console.error('Данные о видео не загружены или имеют неверный формат.');
         }
     });
     </script>
-    <script src="app.js"></script>
 </body>
 </html> 
