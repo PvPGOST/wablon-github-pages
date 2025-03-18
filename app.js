@@ -20,8 +20,17 @@ function createVideoPreview(video) {
         <img class="preview-image" src="${video.preview_url}" alt="${video.title}">
     `;
     
+    // Убираем все дополнительные инлайн-стили
+    previewElement.style.cssText = '';
+    
     // Добавляем обработчик клика для перехода к странице просмотра видео
     previewElement.addEventListener('click', () => {
+        // Сначала убираем класс 'selected' у всех элементов
+        document.querySelectorAll('.video-preview').forEach(el => el.classList.remove('selected'));
+        
+        // Добавляем класс 'selected' только выбранному элементу
+        previewElement.classList.add('selected');
+        
         // Сохраняем ID выбранного видео в localStorage
         localStorage.setItem('selectedVideoId', video.id);
         

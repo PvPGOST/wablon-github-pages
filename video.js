@@ -69,7 +69,7 @@ function displayVideo(video) {
     if (video.video_url.includes('cloudinary.com')) {
         // Для Cloudinary используем HTML5 video тег напрямую
         playerContainer.innerHTML = `
-            <div style="position: relative; width: 100%; height: 100%; background-color: #000;">
+            <div style="position: relative; width: 100%; height: 100%; min-height: 250px; background-color: #000; border: 2px solid #ff0000; border-radius: 4px;">
                 <video 
                     id="cloudinaryVideo"
                     controls 
@@ -78,7 +78,8 @@ function displayVideo(video) {
                     muted
                     preload="auto"
                     width="100%" 
-                    height="100%">
+                    height="100%"
+                    style="display: block; min-height: 250px;">
                     <source src="${video.video_url}" type="video/mp4">
                     Ваш браузер не поддерживает видео.
                 </video>
@@ -103,10 +104,11 @@ function displayVideo(video) {
     } else if (video.video_url.includes('youtube.com') || video.video_url.includes('vimeo.com')) {
         // Для YouTube и Vimeo используем iframe
         playerContainer.innerHTML = `
-            <div style="position: relative; width: 100%; height: 100%; background-color: #000;">
+            <div style="position: relative; width: 100%; height: 100%; min-height: 250px; background-color: #000; border: 2px solid #ff0000; border-radius: 4px;">
                 <iframe 
                     width="100%" 
-                    height="100%" 
+                    height="100%"
+                    style="display: block; min-height: 250px;"
                     src="${video.video_url}" 
                     frameborder="0"
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
@@ -117,7 +119,7 @@ function displayVideo(video) {
     } else {
         // Для остальных видео пробуем стандартный HTML5 video тег
         playerContainer.innerHTML = `
-            <div style="position: relative; width: 100%; height: 100%; background-color: #000;">
+            <div style="position: relative; width: 100%; height: 100%; min-height: 250px; background-color: #000; border: 2px solid #ff0000; border-radius: 4px;">
                 <video 
                     id="regularVideo"
                     controls 
@@ -126,7 +128,8 @@ function displayVideo(video) {
                     muted
                     preload="auto"
                     width="100%" 
-                    height="100%">
+                    height="100%"
+                    style="display: block; min-height: 250px;">
                     <source src="${video.video_url}" type="video/mp4">
                     Ваш браузер не поддерживает видео.
                 </video>
