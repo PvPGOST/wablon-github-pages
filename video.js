@@ -155,168 +155,162 @@ function applyVerticalVideoStyles(videoElement) {
 }
 
 // Функция для отображения видео и его информации
-function displayVideo(video) {
-    if (!video) {
-        // Если видео не найдено, показываем сообщение об ошибке
-        document.getElementById('videoNumber').textContent = 'Видео не найдено';
-        document.getElementById('videoPlayer').innerHTML = '<p class="error-message">Запрошенное видео не найдено или недоступно.</p>';
-        document.getElementById('confirmButton').style.display = 'none';
+function displayVideo() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const videoId = urlParams.get('id');
+    const videoData = getVideoData(videoId);
+    
+    if (!videoData) {
+        showError('Видео не найдено');
         return;
     }
     
-    const playerContainer = document.getElementById('videoPlayer');
-    const videoNumber = document.getElementById('videoNumber');
+    document.title = videoData.title;
+    document.getElementById('videoTitle').textContent = videoData.title;
+    document.getElementById('videoDescription').textContent = videoData.description;
     
-    // Отображаем заголовок видео
-    videoNumber.textContent = video.title;
+    const videoContainer = document.getElementById('videoContainer');
+    videoContainer.innerHTML = '';
     
-    // Проверяем тип ссылки на видео
-    if (video.video_url.includes('cloudinary.com')) {
-        // Для Cloudinary используем HTML5 video тег, добавляем controls для управления
-        playerContainer.innerHTML = `
-            <div style="position: relative; width: 100%; height: 100%; min-height: 250px; background-color: #000; border: none !important;">
-                <video 
-                    id="cloudinaryVideo"
-                    controls
-                    playsinline
-                    muted
-                    loop
-                    preload="auto"
-                    width="100%" 
-                    style="display: block; min-height: 250px; max-width: 100%; margin: 0 auto; border: none !important;">
-                    <source src="${video.video_url}" type="video/mp4">
-                    Ваш браузер не поддерживает видео.
-                </video>
-            </div>
-        `;
-        
-        // Обработка видео
-        const videoElement = document.getElementById('cloudinaryVideo');
-        if (videoElement) {
-            // Обработка воспроизведения и адаптация под ориентацию
-            adaptVideoOrientation(videoElement);
+    // Убеждаемся, что кнопки имеют правильные стили
+    const backButton = document.querySelector('.back-button');
+    if (backButton) {
+        backButton.classList.add('back-button');
+    }
+    
+    const nextButton = document.getElementById('nextButton');
+    if (nextButton) {
+        nextButton.classList.add('next-button');
+    }
+    
+    let isControlsVisible = false;
+    let controlsTimeout;
+    
+    // Функция для управления видимостью элементов управления
+    function toggleVideoControls(videoElement) {
+        if (isControlsVisible) {
+            videoElement.removeAttribute('controls');
+            isControlsVisible = false;
+        } else {
+            videoElement.setAttribute('controls', 'true');
+            isControlsVisible = true;
             
-            // Запускаем воспроизведение один раз
-            videoElement.play().catch(error => {
-                console.error('Ошибка автовоспроизведения:', error);
-                handleVideoError(videoElement, 'Нажмите на видео для воспроизведения');
-            });
-            
-            // Упрощаем обработчик клика на видео
-            let isVideoClicked = false;
-            
-            videoElement.addEventListener('click', function(e) {
-                // Не делаем ничего при клике, пусть браузер сам обрабатывает клики
-                // на элементах управления через стандартный интерфейс controls
-                
-                // Помечаем, что был клик для обработчика двойного клика
-                isVideoClicked = true;
-                setTimeout(() => { isVideoClicked = false; }, 300);
-            });
-            
-            // Добавляем функционал полноэкранного режима по двойному клику
-            setupFullscreenOnDoubleClick(videoElement);
-        }
-    } else if (video.video_url.includes('youtube.com') || video.video_url.includes('vimeo.com')) {
-        // Для YouTube и Vimeo используем iframe с автовоспроизведением
-        // Для этих платформ оставляем controls=1, чтобы пользователь мог взаимодействовать
-        let videoSrc = video.video_url;
-        if (videoSrc.includes('youtube.com')) {
-            // Для YouTube
-            if (videoSrc.includes('?')) {
-                videoSrc += '&autoplay=1&mute=1&loop=1&controls=1';
-            } else {
-                videoSrc += '?autoplay=1&mute=1&loop=1&controls=1';
-            }
-        } else if (videoSrc.includes('vimeo.com')) {
-            // Для Vimeo
-            if (videoSrc.includes('?')) {
-                videoSrc += '&autoplay=1&muted=1&loop=1&controls=1';
-            } else {
-                videoSrc += '?autoplay=1&muted=1&loop=1&controls=1';
-            }
-        }
-        
-        playerContainer.innerHTML = `
-            <div style="position: relative; width: 100%; height: 100%; min-height: 250px; background-color: #000; border: none !important;">
-                <iframe 
-                    id="iframeVideo"
-                    width="100%" 
-                    height="100%"
-                    style="display: block; min-height: 250px; border: none !important;"
-                    src="${videoSrc}" 
-                    frameborder="0"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                    allowfullscreen>
-                </iframe>
-            </div>
-        `;
-        
-        // Для iframe нужна особая обработка полноэкранного режима
-        const iframeElement = document.getElementById('iframeVideo');
-        if (iframeElement) {
-            // Добавляем наложение для двойного клика
-            const overlayDiv = document.createElement('div');
-            overlayDiv.style.position = 'absolute';
-            overlayDiv.style.top = '0';
-            overlayDiv.style.left = '0';
-            overlayDiv.style.width = '100%';
-            overlayDiv.style.height = '100%';
-            overlayDiv.style.zIndex = '10';
-            overlayDiv.style.cursor = 'pointer';
-            
-            iframeElement.parentNode.appendChild(overlayDiv);
-            
-            // Обработчик двойного клика для iframe
-            setupFullscreenOnDoubleClick(overlayDiv, iframeElement);
-        }
-    } else {
-        // Для остальных видео пробуем стандартный HTML5 video тег
-        playerContainer.innerHTML = `
-            <div style="position: relative; width: 100%; height: 100%; min-height: 250px; background-color: #000; border: none !important;">
-                <video 
-                    id="regularVideo"
-                    controls
-                    playsinline
-                    muted
-                    loop
-                    preload="auto"
-                    width="100%" 
-                    style="display: block; min-height: 250px; max-width: 100%; margin: 0 auto; border: none !important;">
-                    <source src="${video.video_url}" type="video/mp4">
-                    Ваш браузер не поддерживает видео.
-                </video>
-            </div>
-        `;
-        
-        // Обработка видео
-        const videoElement = document.getElementById('regularVideo');
-        if (videoElement) {
-            // Обработка воспроизведения и адаптация под ориентацию
-            adaptVideoOrientation(videoElement);
-            
-            // Запускаем воспроизведение один раз
-            videoElement.play().catch(error => {
-                console.error('Ошибка автовоспроизведения:', error);
-                handleVideoError(videoElement, 'Нажмите на видео для воспроизведения');
-            });
-            
-            // Упрощаем обработчик клика на видео
-            let isVideoClicked = false;
-            
-            videoElement.addEventListener('click', function(e) {
-                // Не делаем ничего при клике, пусть браузер сам обрабатывает клики
-                // на элементах управления через стандартный интерфейс controls
-                
-                // Помечаем, что был клик для обработчика двойного клика
-                isVideoClicked = true;
-                setTimeout(() => { isVideoClicked = false; }, 300);
-            });
-            
-            // Добавляем функционал полноэкранного режима по двойному клику
-            setupFullscreenOnDoubleClick(videoElement);
+            // Автоматически скрываем элементы управления через 5 секунд
+            clearTimeout(controlsTimeout);
+            controlsTimeout = setTimeout(() => {
+                videoElement.removeAttribute('controls');
+                isControlsVisible = false;
+            }, 5000);
         }
     }
+    
+    if (videoData.videoUrl.includes('youtube.com') || videoData.videoUrl.includes('youtu.be')) {
+        // Для YouTube видео: добавляем параметры для скрытия элементов управления
+        let youtubeUrl = videoData.videoUrl;
+        if (youtubeUrl.includes('?')) {
+            youtubeUrl += '&controls=0&showinfo=0&rel=0&autoplay=1&mute=1&loop=1';
+        } else {
+            youtubeUrl += '?controls=0&showinfo=0&rel=0&autoplay=1&mute=1&loop=1';
+        }
+        
+        const iframe = document.createElement('iframe');
+        iframe.src = youtubeUrl;
+        iframe.width = '100%';
+        iframe.height = '100%';
+        iframe.frameBorder = '0';
+        iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
+        iframe.allowFullscreen = true;
+        
+        videoContainer.appendChild(iframe);
+        
+        // Для YouTube используем обертку для обработки кликов
+        const iframeWrapper = document.createElement('div');
+        iframeWrapper.style.position = 'absolute';
+        iframeWrapper.style.top = '0';
+        iframeWrapper.style.left = '0';
+        iframeWrapper.style.width = '100%';
+        iframeWrapper.style.height = '100%';
+        iframeWrapper.style.zIndex = '10';
+        iframeWrapper.style.cursor = 'pointer';
+        
+        iframeWrapper.addEventListener('click', function() {
+            // Для YouTube нельзя напрямую управлять элементами, но можно отправить сообщение
+            try {
+                iframe.contentWindow.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*');
+            } catch (e) {
+                console.error('Не удалось управлять YouTube видео:', e);
+            }
+        });
+        
+        videoContainer.appendChild(iframeWrapper);
+    } else if (videoData.videoUrl.includes('vimeo.com')) {
+        // Для Vimeo видео: добавляем параметры для скрытия элементов управления
+        let vimeoUrl = videoData.videoUrl;
+        if (vimeoUrl.includes('?')) {
+            vimeoUrl += '&controls=0&autoplay=1&muted=1&loop=1';
+        } else {
+            vimeoUrl += '?controls=0&autoplay=1&muted=1&loop=1';
+        }
+        
+        const iframe = document.createElement('iframe');
+        iframe.src = vimeoUrl;
+        iframe.width = '100%';
+        iframe.height = '100%';
+        iframe.frameBorder = '0';
+        iframe.allow = 'autoplay; fullscreen; picture-in-picture';
+        iframe.allowFullscreen = true;
+        
+        videoContainer.appendChild(iframe);
+    } else {
+        // Для обычных видео (Cloudinary и др.)
+        const video = document.createElement('video');
+        video.src = videoData.videoUrl;
+        video.className = 'video-element';
+        video.autoplay = true;
+        video.muted = true;
+        video.loop = true;
+        video.playsInline = true;
+        // Не добавляем атрибут controls изначально
+        
+        // Обработчик клика для отображения/скрытия элементов управления
+        video.addEventListener('click', () => {
+            toggleVideoControls(video);
+        });
+        
+        // Обработчик двойного клика для полноэкранного режима
+        video.addEventListener('dblclick', () => {
+            if (video.requestFullscreen) {
+                video.requestFullscreen();
+            } else if (video.webkitRequestFullscreen) {
+                video.webkitRequestFullscreen();
+            } else if (video.msRequestFullscreen) {
+                video.msRequestFullscreen();
+            }
+        });
+        
+        // Автоматически скрываем курсор при неактивности
+        video.addEventListener('mousemove', () => {
+            video.style.cursor = 'default';
+            clearTimeout(controlsTimeout);
+            controlsTimeout = setTimeout(() => {
+                video.style.cursor = 'none';
+            }, 3000);
+        });
+        
+        videoContainer.appendChild(video);
+        adaptVideoOrientation(video);
+        
+        // Обработка ошибок загрузки видео
+        video.addEventListener('error', function() {
+            showError('Не удалось загрузить видео. Пожалуйста, попробуйте позже.');
+        });
+    }
+    
+    // Настраиваем кнопки навигации
+    setupNavigationButtons(videoId);
+    
+    // Убираем любые границы у контейнера видео
+    removeAllBorders();
 }
 
 // Функция для обработки нажатия на кнопку "Подтвердить"

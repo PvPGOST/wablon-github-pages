@@ -99,6 +99,9 @@ body {
     position: relative;
     border-radius: 4px;
     width: auto;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    text-align: center;
+    transition: background-color 0.2s, transform 0.1s;
 }
 
 /* Стили для кнопки "Следующее" */
@@ -113,6 +116,9 @@ body {
     position: relative;
     border-radius: 4px;
     width: auto;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    text-align: center;
+    transition: background-color 0.2s, transform 0.1s;
 }
 
 /* Удаляем красную линию под текстом, так как сама кнопка теперь красная */
@@ -177,33 +183,22 @@ body {
     opacity: 0.9;
 }
 
-/* Удаляем стили, скрывающие элементы управления */
-/*
+/* Стили для скрытия элементов управления видео по умолчанию */
 video::-webkit-media-controls {
     opacity: 0;
     pointer-events: none;
-}
-
-video::-webkit-media-controls-enclosure {
-    opacity: 0;
-    pointer-events: none;
-}
-
-video:hover::-webkit-media-controls-enclosure,
-video:hover::-webkit-media-controls {
-    opacity: 1;
-    pointer-events: auto;
     transition: opacity 0.3s;
 }
-*/
-
-/* Стили для элементов управления видео, которые всегда видны */
-video::-webkit-media-controls {
-    opacity: 1;
-    pointer-events: auto;
-}
 
 video::-webkit-media-controls-enclosure {
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+}
+
+/* Стили для элементов управления, когда они видимы */
+video[controls]::-webkit-media-controls,
+video[controls]::-webkit-media-controls-enclosure {
     opacity: 1;
     pointer-events: auto;
 }
@@ -215,4 +210,16 @@ video {
     object-fit: contain;
     background-color: #000;
     border: none !important;
+    cursor: pointer;
+}
+
+/* Одинаковые стили для кнопок навигации "Назад" и "Следующее" */
+.back-button:hover, 
+.next-button:hover {
+    background-color: #e60000;
+}
+
+.back-button:active, 
+.next-button:active {
+    transform: translateY(1px);
 } 
