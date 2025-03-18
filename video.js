@@ -39,7 +39,9 @@ function displayVideo(video) {
     
     // Проверяем тип ссылки на видео
     if (video.video_url.includes('cloudinary.com')) {
-        // Для Cloudinary используем HTML5 video тег
+        // Для Cloudinary можно использовать два варианта
+        // 1. HTML5 video тег (может не работать из-за CORS)
+        /*
         playerContainer.innerHTML = `
             <video 
                 controls 
@@ -50,6 +52,23 @@ function displayVideo(video) {
                 <source src="${video.video_url}" type="video/mp4">
                 Ваш браузер не поддерживает видео.
             </video>
+        `;
+        */
+        
+        // 2. iframe (более надежный вариант)
+        // Преобразуем URL для iframe-встраивания
+        const videoId = video.video_url.split('/').pop().split('.')[0];
+        const cloudName = video.video_url.split('/')[3];
+        const embedUrl = `https://player.cloudinary.com/${cloudName}/video/upload/v1711066740694/${videoId}.mp4`;
+        
+        playerContainer.innerHTML = `
+            <iframe 
+                width="100%" 
+                height="100%" 
+                src="${embedUrl}" 
+                allowfullscreen
+                allow="autoplay">
+            </iframe>
         `;
     } else if (video.video_url.includes('youtube.com') || video.video_url.includes('vimeo.com')) {
         // Для YouTube и Vimeo используем iframe
