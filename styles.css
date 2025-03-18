@@ -82,25 +82,19 @@ body {
 .back-button {
     display: inline-block;
     margin: 10px;
-    padding: 8px 0; /* Убираем боковые отступы */
+    padding: 8px 15px; /* Добавляем боковые отступы */
     cursor: pointer;
-    color: #000000; /* Черный текст */
-    background-color: transparent;
+    color: #000000; /* Меняем на черный текст */
+    background-color: #ff0000; /* Красный фон для кнопки */
     font-weight: 500;
     position: relative;
-    width: fit-content; /* Ширина только по тексту */
+    border-radius: 4px; /* Закругленные углы */
+    width: auto; /* Авто-ширина вместо fit-content */
 }
 
-/* Добавляем красную линию только под текстом кнопки назад */
+/* Удаляем красную линию под текстом, так как сама кнопка теперь красная */
 .back-button::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%; /* Ширина равна тексту, т.к. родитель имеет fit-content */
-    height: 3px;
-    background-color: #ff0000;
-    border-radius: 1.5px;
+    display: none;
 }
 
 .video-title {
@@ -158,4 +152,32 @@ body {
 
 .confirm-button:hover, .confirm-button:active {
     opacity: 0.9;
+}
+
+/* Стили для скрытия элементов управления видео */
+video::-webkit-media-controls {
+    opacity: 0;
+    pointer-events: none;
+}
+
+video::-webkit-media-controls-enclosure {
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* Показываем элементы управления только при наведении */
+video:hover::-webkit-media-controls-enclosure,
+video:hover::-webkit-media-controls {
+    opacity: 1;
+    pointer-events: auto;
+    transition: opacity 0.3s;
+}
+
+/* Дополнительные стили для видео */
+video {
+    min-height: 250px;
+    width: 100%;
+    object-fit: contain;
+    background-color: #000;
+    border: none !important;
 } 

@@ -172,13 +172,11 @@ function displayVideo(video) {
     
     // Проверяем тип ссылки на видео
     if (video.video_url.includes('cloudinary.com')) {
-        // Для Cloudinary используем HTML5 video тег напрямую
+        // Для Cloudinary используем HTML5 video тег напрямую, убираем controls - они скроются после начала воспроизведения
         playerContainer.innerHTML = `
             <div style="position: relative; width: 100%; height: 100%; min-height: 250px; background-color: #000; border: none !important;">
                 <video 
                     id="cloudinaryVideo"
-                    controls 
-                    autoplay 
                     playsinline
                     muted
                     loop
@@ -200,7 +198,32 @@ function displayVideo(video) {
             // Запускаем воспроизведение один раз
             videoElement.play().catch(error => {
                 console.error('Ошибка автовоспроизведения:', error);
+                // Если не удалось автоматически запустить, добавляем controls и обработчик ошибки
+                videoElement.controls = true;
                 handleVideoError(videoElement, 'Нажмите на видео для воспроизведения');
+            });
+            
+            // Добавляем обработчик клика для скрытия/показа controls
+            videoElement.addEventListener('click', function() {
+                if (this.paused) {
+                    this.play();
+                    this.controls = false;
+                } else {
+                    this.controls = !this.controls;
+                    // Если показали controls, через 3 секунды скрываем их при воспроизведении
+                    if (this.controls && !this.paused) {
+                        setTimeout(() => {
+                            if (!this.paused) this.controls = false;
+                        }, 3000);
+                    }
+                }
+            });
+            
+            // Автоматически скрываем controls через 2 секунды после начала воспроизведения
+            videoElement.addEventListener('playing', function() {
+                setTimeout(() => {
+                    if (!this.paused) this.controls = false;
+                }, 2000);
             });
         }
     } else if (video.video_url.includes('youtube.com') || video.video_url.includes('vimeo.com')) {
@@ -210,16 +233,16 @@ function displayVideo(video) {
         if (videoSrc.includes('youtube.com')) {
             // Для YouTube
             if (videoSrc.includes('?')) {
-                videoSrc += '&autoplay=1&mute=1&loop=1';
+                videoSrc += '&autoplay=1&mute=1&loop=1&controls=0';
             } else {
-                videoSrc += '?autoplay=1&mute=1&loop=1';
+                videoSrc += '?autoplay=1&mute=1&loop=1&controls=0';
             }
         } else if (videoSrc.includes('vimeo.com')) {
             // Для Vimeo
             if (videoSrc.includes('?')) {
-                videoSrc += '&autoplay=1&muted=1&loop=1';
+                videoSrc += '&autoplay=1&muted=1&loop=1&controls=0';
             } else {
-                videoSrc += '?autoplay=1&muted=1&loop=1';
+                videoSrc += '?autoplay=1&muted=1&loop=1&controls=0';
             }
         }
         
@@ -242,8 +265,6 @@ function displayVideo(video) {
             <div style="position: relative; width: 100%; height: 100%; min-height: 250px; background-color: #000; border: none !important;">
                 <video 
                     id="regularVideo"
-                    controls 
-                    autoplay 
                     playsinline
                     muted
                     loop
@@ -265,7 +286,32 @@ function displayVideo(video) {
             // Запускаем воспроизведение один раз
             videoElement.play().catch(error => {
                 console.error('Ошибка автовоспроизведения:', error);
+                // Если не удалось автоматически запустить, добавляем controls и обработчик ошибки
+                videoElement.controls = true;
                 handleVideoError(videoElement, 'Нажмите на видео для воспроизведения');
+            });
+            
+            // Добавляем обработчик клика для скрытия/показа controls
+            videoElement.addEventListener('click', function() {
+                if (this.paused) {
+                    this.play();
+                    this.controls = false;
+                } else {
+                    this.controls = !this.controls;
+                    // Если показали controls, через 3 секунды скрываем их при воспроизведении
+                    if (this.controls && !this.paused) {
+                        setTimeout(() => {
+                            if (!this.paused) this.controls = false;
+                        }, 3000);
+                    }
+                }
+            });
+            
+            // Автоматически скрываем controls через 2 секунды после начала воспроизведения
+            videoElement.addEventListener('playing', function() {
+                setTimeout(() => {
+                    if (!this.paused) this.controls = false;
+                }, 2000);
             });
         }
     }
