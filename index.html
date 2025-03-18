@@ -45,21 +45,12 @@
         .preview-image {
             width: 100%;
             height: 100%;
-            object-fit: contain;
+            object-fit: cover;
         }
-        .confirm-button {
-            display: block;
-            width: 100%;
-            padding: 14px;
-            background-color: #ff0000;
-            color: #ffffff;
-            border: none;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            text-align: center;
-            text-transform: uppercase;
-            margin-top: 20px;
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0;
         }
     </style>
 </head>
@@ -68,12 +59,6 @@
         <h1 class="page-title">Выберите шаблон</h1>
         <div class="video-grid" id="videoGrid">
             <!-- Видео будут добавлены через JavaScript -->
-        </div>
-        
-        <div class="spacer"></div>
-        
-        <div class="footer">
-            <button class="confirm-button" id="mainConfirmButton">ВЫБРАТЬ ШАБЛОН</button>
         </div>
     </div>
 
@@ -113,23 +98,6 @@
         } else {
             console.error('Данные о видео не загружены');
         }
-        
-        // Настройка кнопки
-        document.getElementById('mainConfirmButton').addEventListener('click', function() {
-            const selectedId = localStorage.getItem('selectedVideoId');
-            if (selectedId && window.Telegram && window.Telegram.WebApp) {
-                const selectedVideo = videoData.find(v => v.id === selectedId);
-                if (selectedVideo) {
-                    window.Telegram.WebApp.sendData(JSON.stringify({
-                        selected_video_id: selectedVideo.id,
-                        selected_video_title: selectedVideo.title
-                    }));
-                    window.Telegram.WebApp.close();
-                }
-            } else {
-                alert('Пожалуйста, выберите шаблон');
-            }
-        });
     });
     </script>
     <script src="app.js"></script>

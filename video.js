@@ -31,43 +31,48 @@ function displayVideo(video) {
         return;
     }
     
-    // Устанавливаем номер видео
-    document.getElementById('videoNumber').textContent = `Номер ${video.id.replace('video', '')}`;
+    const playerContainer = document.getElementById('videoPlayer');
+    const videoNumber = document.getElementById('videoNumber');
     
-    // Отображаем плеер видео в зависимости от типа URL
-    const videoPlayerElement = document.getElementById('videoPlayer');
+    // Отображаем заголовок видео
+    videoNumber.textContent = video.title;
     
-    if (video.video_url.includes('youtube.com/embed')) {
-        // YouTube видео
-        videoPlayerElement.innerHTML = `
-            <iframe 
-                src="${video.video_url}?autoplay=1" 
-                allowfullscreen>
-            </iframe>
-        `;
-    } else if (video.video_url.includes('player.vimeo.com')) {
-        // Vimeo видео
-        videoPlayerElement.innerHTML = `
-            <iframe 
-                src="${video.video_url}?autoplay=1" 
-                allowfullscreen>
-            </iframe>
-        `;
-    } else if (video.video_url.endsWith('.mp4') || video.video_url.endsWith('.webm') || video.video_url.endsWith('.ogg')) {
-        // HTML5 видео
-        videoPlayerElement.innerHTML = `
-            <video autoplay controls>
-                <source src="${video.video_url}" type="video/${video.video_url.split('.').pop()}">
+    // Проверяем тип ссылки на видео
+    if (video.video_url.includes('cloudinary.com')) {
+        // Для Cloudinary используем HTML5 video тег
+        playerContainer.innerHTML = `
+            <video 
+                controls 
+                autoplay 
+                playsinline
+                width="100%" 
+                height="100%">
+                <source src="${video.video_url}" type="video/mp4">
                 Ваш браузер не поддерживает видео.
             </video>
         `;
-    } else {
-        // Другие типы видео или непредвиденный формат
-        videoPlayerElement.innerHTML = `
+    } else if (video.video_url.includes('youtube.com') || video.video_url.includes('vimeo.com')) {
+        // Для YouTube и Vimeo используем iframe
+        playerContainer.innerHTML = `
             <iframe 
+                width="100%" 
+                height="100%" 
                 src="${video.video_url}" 
                 allowfullscreen>
             </iframe>
+        `;
+    } else {
+        // Для остальных видео пробуем стандартный HTML5 video тег
+        playerContainer.innerHTML = `
+            <video 
+                controls 
+                autoplay 
+                playsinline
+                width="100%" 
+                height="100%">
+                <source src="${video.video_url}" type="video/mp4">
+                Ваш браузер не поддерживает видео.
+            </video>
         `;
     }
 }
