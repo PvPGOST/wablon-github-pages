@@ -21,6 +21,34 @@ function findVideoById(id) {
     return null;
 }
 
+// Функция для общей обработки ошибок воспроизведения видео
+function handleVideoError(videoElement, errorMessage) {
+    console.error(errorMessage);
+    // Добавляем заметное сообщение об ошибке на странице
+    const errorContainer = document.createElement('div');
+    errorContainer.className = 'video-error-message';
+    errorContainer.textContent = 'Ошибка воспроизведения видео. Нажмите для повторной попытки.';
+    errorContainer.style.position = 'absolute';
+    errorContainer.style.top = '50%';
+    errorContainer.style.left = '50%';
+    errorContainer.style.transform = 'translate(-50%, -50%)';
+    errorContainer.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
+    errorContainer.style.color = '#fff';
+    errorContainer.style.padding = '10px 20px';
+    errorContainer.style.borderRadius = '5px';
+    errorContainer.style.cursor = 'pointer';
+    
+    // Добавляем контейнер с ошибкой в DOM
+    videoElement.parentNode.appendChild(errorContainer);
+    
+    // Обработчик нажатия для повторной попытки воспроизведения
+    errorContainer.addEventListener('click', () => {
+        videoElement.play().catch(err => {
+            console.error('Повторная попытка не удалась:', err);
+        });
+    });
+}
+
 // Функция для отображения видео и его информации
 function displayVideo(video) {
     if (!video) {
@@ -39,60 +67,87 @@ function displayVideo(video) {
     
     // Проверяем тип ссылки на видео
     if (video.video_url.includes('cloudinary.com')) {
-        // Для Cloudinary можно использовать два варианта
-        // 1. HTML5 video тег (может не работать из-за CORS)
-        /*
+        // Для Cloudinary используем HTML5 video тег напрямую
         playerContainer.innerHTML = `
-            <video 
-                controls 
-                autoplay 
-                playsinline
-                width="100%" 
-                height="100%">
-                <source src="${video.video_url}" type="video/mp4">
-                Ваш браузер не поддерживает видео.
-            </video>
+            <div style="position: relative; width: 100%; height: 100%; background-color: #000;">
+                <video 
+                    id="cloudinaryVideo"
+                    controls 
+                    autoplay 
+                    playsinline
+                    muted
+                    preload="auto"
+                    width="100%" 
+                    height="100%">
+                    <source src="${video.video_url}" type="video/mp4">
+                    Ваш браузер не поддерживает видео.
+                </video>
+            </div>
         `;
-        */
         
-        // 2. iframe (более надежный вариант)
-        // Преобразуем URL для iframe-встраивания
-        const videoId = video.video_url.split('/').pop().split('.')[0];
-        const cloudName = video.video_url.split('/')[3];
-        const embedUrl = `https://player.cloudinary.com/${cloudName}/video/upload/v1711066740694/${videoId}.mp4`;
-        
-        playerContainer.innerHTML = `
-            <iframe 
-                width="100%" 
-                height="100%" 
-                src="${embedUrl}" 
-                allowfullscreen
-                allow="autoplay">
-            </iframe>
-        `;
+        // Дополнительная проверка воспроизведения
+        setTimeout(() => {
+            const videoElement = document.getElementById('cloudinaryVideo');
+            if (videoElement) {
+                // Отключаем muted после инициализации для решения проблемы автовоспроизведения
+                videoElement.addEventListener('canplay', function() {
+                    videoElement.muted = false;
+                });
+                
+                videoElement.play().catch(error => {
+                    console.error('Ошибка воспроизведения видео:', error);
+                    handleVideoError(videoElement, 'Ошибка воспроизведения видео. Нажмите для повторной попытки.');
+                });
+            }
+        }, 1000);
     } else if (video.video_url.includes('youtube.com') || video.video_url.includes('vimeo.com')) {
         // Для YouTube и Vimeo используем iframe
         playerContainer.innerHTML = `
-            <iframe 
-                width="100%" 
-                height="100%" 
-                src="${video.video_url}" 
-                allowfullscreen>
-            </iframe>
+            <div style="position: relative; width: 100%; height: 100%; background-color: #000;">
+                <iframe 
+                    width="100%" 
+                    height="100%" 
+                    src="${video.video_url}" 
+                    frameborder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                    allowfullscreen>
+                </iframe>
+            </div>
         `;
     } else {
         // Для остальных видео пробуем стандартный HTML5 video тег
         playerContainer.innerHTML = `
-            <video 
-                controls 
-                autoplay 
-                playsinline
-                width="100%" 
-                height="100%">
-                <source src="${video.video_url}" type="video/mp4">
-                Ваш браузер не поддерживает видео.
-            </video>
+            <div style="position: relative; width: 100%; height: 100%; background-color: #000;">
+                <video 
+                    id="regularVideo"
+                    controls 
+                    autoplay 
+                    playsinline
+                    muted
+                    preload="auto"
+                    width="100%" 
+                    height="100%">
+                    <source src="${video.video_url}" type="video/mp4">
+                    Ваш браузер не поддерживает видео.
+                </video>
+            </div>
         `;
+        
+        // Обработка воспроизведения для обычных видео
+        setTimeout(() => {
+            const videoElement = document.getElementById('regularVideo');
+            if (videoElement) {
+                // Отключаем muted после инициализации
+                videoElement.addEventListener('canplay', function() {
+                    videoElement.muted = false;
+                });
+                
+                videoElement.play().catch(error => {
+                    console.error('Ошибка воспроизведения видео:', error);
+                    handleVideoError(videoElement, 'Ошибка воспроизведения видео. Нажмите для повторной попытки.');
+                });
+            }
+        }, 1000);
     }
 }
 
