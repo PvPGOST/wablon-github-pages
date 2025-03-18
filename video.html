@@ -100,6 +100,18 @@
         .footer {
             margin-top: 0;
         }
+        /* Добавляем стили для улучшения автовоспроизведения видео */
+        video {
+            min-height: 250px;
+            width: 100%;
+            object-fit: contain;
+            background-color: #000;
+            border: none !important;
+        }
+        /* Фиксация для Safari автовоспроизведения */
+        video::-webkit-media-controls-start-playback-button {
+            display: none !important;
+        }
     </style>
 </head>
 <body>
