@@ -288,153 +288,73 @@ function setupConfirmButton(video) {
     confirmButton.addEventListener('click', function() {
         console.log('Кнопка "ВЫБРАТЬ ШАБЛОН" нажата');
         
-        // Показываем уведомление сразу после нажатия кнопки
+        // Создаем и показываем уведомление
         const notificationElement = document.createElement('div');
         notificationElement.className = 'success-notification';
-        notificationElement.textContent = 'Отправка данных...';
+        notificationElement.textContent = 'Отправка шаблона...';
         notificationElement.style.position = 'fixed';
         notificationElement.style.bottom = '20px';
         notificationElement.style.left = '50%';
         notificationElement.style.transform = 'translateX(-50%)';
-        notificationElement.style.backgroundColor = 'rgba(50, 50, 150, 0.9)';
+        notificationElement.style.backgroundColor = 'rgba(0, 100, 150, 0.9)';
         notificationElement.style.color = 'white';
         notificationElement.style.padding = '15px 20px';
         notificationElement.style.borderRadius = '5px';
         notificationElement.style.zIndex = '1000';
         notificationElement.style.textAlign = 'center';
-        notificationElement.style.minWidth = '250px';
         
         document.body.appendChild(notificationElement);
         
-        setTimeout(() => {
-            try {
-                // Извлекаем числовой ID из строки (например, из "video1" получаем "1")
-                const numericId = video.id.replace(/[^\d]/g, '');
+        try {
+            // Извлекаем числовой ID из строки (например, из "video1" получаем "1")
+            const numericId = video.id.replace(/[^\d]/g, '');
+            
+            // Формируем имя файла в точном соответствии с ожиданиями бота
+            const videoFileName = `template_${numericId}.mp4`;
+            
+            // Минимальный набор данных для отправки
+            const dataToSend = {
+                action: "process_video",
+                videoName: videoFileName
+            };
+            
+            console.log('Отправка данных в бот:', dataToSend);
+            
+            // Отправляем данные в Telegram
+            if (window.Telegram && window.Telegram.WebApp) {
+                window.Telegram.WebApp.sendData(JSON.stringify(dataToSend));
                 
-                // Формируем имя файла в точном соответствии с ожиданиями бота
-                const videoFileName = `template_${numericId}.mp4`;
+                // Обновляем уведомление
+                notificationElement.textContent = 'Шаблон отправлен на обработку!';
+                notificationElement.style.backgroundColor = 'rgba(0, 128, 0, 0.9)';
                 
-                // Проверка наличия переменной tg
-                if (!window.Telegram || !window.Telegram.WebApp) {
-                    throw new Error('Telegram WebApp API не обнаружен');
-                }
-                
-                // Добавляем флаги отладки и вариации путей
-                const dataToSend = {
-                    action: "process_video",
-                    videoFile: videoFileName,
-                    videoId: numericId,
-                    videoName: video.title,
-                    timestamp: Date.now(),
-                    
-                    // Добавляем дополнительные поля для отладки
-                    debug_info: {
-                        app_version: "1.0.1", // Версия мини-приложения
-                        browser: navigator.userAgent, // Информация о браузере
-                        screen_size: `${window.innerWidth}x${window.innerHeight}`, // Размер экрана
-                        tg_version: tg.version || "unknown" // Версия Telegram WebApp
-                    },
-                    
-                    // Добавляем альтернативные пути к файлу для тестирования
-                    alt_paths: {
-                        full_path: `K:\\VideoFF\\${videoFileName}`,
-                        relative_path: videoFileName,
-                        video_id_only: numericId
-                    }
-                };
-                
-                // Показываем данные в уведомлении для отладки
-                notificationElement.innerHTML = `Отправляется:<br><code style="font-size:11px;word-break:break-all;">${JSON.stringify(dataToSend)}</code>`;
-                notificationElement.style.backgroundColor = 'rgba(0, 100, 150, 0.9)';
-                
-                // Логируем отправляемые данные
-                console.log('Отправка данных в бот:', dataToSend);
-                console.log('JSON строка:', JSON.stringify(dataToSend));
-                
-                // Через секунду пытаемся отправить данные
+                // Закрываем уведомление через 3 секунды
                 setTimeout(() => {
-                    try {
-                        // Проверяем доступность Telegram WebApp
-                        if (!tg) {
-                            throw new Error('Telegram WebApp не доступен');
-                        }
-                        
-                        // Попытка отправки данных в Telegram
-                        tg.sendData(JSON.stringify(dataToSend));
-                        
-                        // Проверка, что данные были отправлены (не гарантирует получение)
-                        const wasDataSent = true; // Мы не можем точно узнать, увы
-                        
-                        // Обновляем уведомление о успешной отправке
-                        notificationElement.innerHTML = `Данные отправлены!<br>
-                            <span style="font-size:12px">Видео: ${videoFileName}</span><br>
-                            <span style="font-size:11px">Если видео не обрабатывается, проверьте:</span><br>
-                            <span style="font-size:10px">1. Существует ли файл ${videoFileName} в K:\\VideoFF</span><br>
-                            <span style="font-size:10px">2. Запущен ли бот и проверьте его логи</span>`;
-                        notificationElement.style.backgroundColor = 'rgba(0, 128, 0, 0.9)';
-                        console.log('Данные успешно отправлены в Telegram');
-                        
-                        // Задерживаем закрытие, чтобы убедиться, что данные отправлены
-                        setTimeout(() => {
-                            // Добавляем кнопку копирования данных для отладки
-                            const copyButton = document.createElement('button');
-                            copyButton.textContent = 'Скопировать данные для отправки разработчику';
-                            copyButton.style.backgroundColor = '#fff';
-                            copyButton.style.color = '#000';
-                            copyButton.style.border = 'none';
-                            copyButton.style.padding = '5px 10px';
-                            copyButton.style.borderRadius = '3px';
-                            copyButton.style.marginTop = '10px';
-                            copyButton.style.cursor = 'pointer';
-                            
-                            copyButton.addEventListener('click', function() {
-                                const textToCopy = JSON.stringify(dataToSend);
-                                navigator.clipboard.writeText(textToCopy).then(() => {
-                                    this.textContent = 'Скопировано!';
-                                    this.style.backgroundColor = '#4CAF50';
-                                    this.style.color = '#fff';
-                                }).catch(err => {
-                                    this.textContent = 'Ошибка копирования';
-                                    this.style.backgroundColor = '#f44336';
-                                });
-                            });
-                            
-                            notificationElement.appendChild(document.createElement('br'));
-                            notificationElement.appendChild(copyButton);
-                            
-                            // Добавляем кнопку для закрытия
-                            const closeButton = document.createElement('button');
-                            closeButton.textContent = 'Закрыть';
-                            closeButton.style.backgroundColor = '#555';
-                            closeButton.style.color = '#fff';
-                            closeButton.style.border = 'none';
-                            closeButton.style.padding = '5px 10px';
-                            closeButton.style.borderRadius = '3px';
-                            closeButton.style.marginTop = '10px';
-                            closeButton.style.marginLeft = '10px';
-                            closeButton.style.cursor = 'pointer';
-                            
-                            closeButton.addEventListener('click', function() {
-                                console.log('Закрытие Mini App по запросу пользователя');
-                                notificationElement.remove();
-                                tg.close();
-                            });
-                            
-                            notificationElement.appendChild(closeButton);
-                        }, 3000);
-                    } catch (innerError) {
-                        console.error('Ошибка при отправке данных:', innerError);
-                        notificationElement.innerHTML = `Ошибка отправки:<br>${innerError.message}<br>
-                            <span style="font-size:11px">Попробуйте перезапустить бота и проверить его настройки.</span>`;
-                        notificationElement.style.backgroundColor = 'rgba(200, 0, 0, 0.9)';
-                    }
-                }, 1000);
-            } catch (error) {
-                console.error('Ошибка при подготовке данных:', error);
-                notificationElement.innerHTML = `Ошибка:<br>${error.message}`;
-                notificationElement.style.backgroundColor = 'rgba(200, 0, 0, 0.9)';
+                    notificationElement.style.opacity = '0';
+                    notificationElement.style.transition = 'opacity 0.5s';
+                    
+                    setTimeout(() => {
+                        notificationElement.remove();
+                    }, 500);
+                }, 3000);
+            } else {
+                throw new Error('Telegram WebApp API не доступен');
             }
-        }, 500);
+        } catch (error) {
+            console.error('Ошибка:', error);
+            notificationElement.textContent = `Ошибка: ${error.message}`;
+            notificationElement.style.backgroundColor = 'rgba(200, 0, 0, 0.9)';
+            
+            // Закрываем уведомление об ошибке через 5 секунд
+            setTimeout(() => {
+                notificationElement.style.opacity = '0';
+                notificationElement.style.transition = 'opacity 0.5s';
+                
+                setTimeout(() => {
+                    notificationElement.remove();
+                }, 500);
+            }, 5000);
+        }
     });
 }
 
