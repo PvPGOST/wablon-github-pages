@@ -288,27 +288,30 @@ function setupConfirmButton(video) {
     confirmButton.addEventListener('click', function() {
         console.log('Кнопка "ВЫБРАТЬ ШАБЛОН" нажата');
         
+        // Создаем имя локального файла видео на основе ID
+        // Предполагаем, что на сервере файлы хранятся с именами video1.mp4, video2.mp4 и т.д.
+        const videoFileName = `${video.id}.mp4`;
+        
         // Готовим данные для отправки в Telegram
-        // Включаем всю необходимую информацию для обработки видео
         const dataToSend = {
-            selected_video_id: video.id,
-            selected_video_title: video.title,
-            video_url: video.video_url,
-            // Добавляем любые другие параметры, которые нужны для обработки
-            action: "process_video", // Указываем явно, что видео нужно обработать
-            timestamp: new Date().toISOString() // Добавляем временную метку
+            videoId: video.id,
+            videoName: video.title,
+            videoFile: videoFileName, // Имя файла для локального использования
+            // Важно: не отправляем URL, так как будем использовать локальные файлы
+            action: "process_video",
+            timestamp: new Date().toISOString()
         };
         
         try {
             // Отправляем данные в Telegram
             tg.sendData(JSON.stringify(dataToSend));
             
-            console.log('Данные успешно отправлены в Telegram для обработки:', dataToSend);
+            console.log('Выбран шаблон для обработки:', dataToSend);
             
             // Показываем уведомление пользователю
             const notificationElement = document.createElement('div');
             notificationElement.className = 'success-notification';
-            notificationElement.textContent = 'Видео отправлено на обработку!';
+            notificationElement.textContent = 'Шаблон выбран! Видео обрабатывается...';
             notificationElement.style.position = 'fixed';
             notificationElement.style.bottom = '20px';
             notificationElement.style.left = '50%';
@@ -321,19 +324,23 @@ function setupConfirmButton(video) {
             
             document.body.appendChild(notificationElement);
             
-            // Удаляем уведомление через 3 секунды
+            // Показываем статус обработки
+            setTimeout(() => {
+                notificationElement.textContent = 'Обработка видео...';
+            }, 1000);
+            
+            // Удаляем уведомление через 2 секунды
             setTimeout(() => {
                 notificationElement.style.opacity = '0';
                 notificationElement.style.transition = 'opacity 0.5s';
                 setTimeout(() => document.body.removeChild(notificationElement), 500);
-            }, 3000);
-            
-            // Закрываем Mini App через небольшую задержку
-            setTimeout(() => {
+                
+                // Закрываем Mini App
                 tg.close();
-            }, 1500);
+            }, 2000);
+            
         } catch (error) {
-            console.error('Ошибка при отправке данных в Telegram:', error);
+            console.error('Ошибка при выборе шаблона:', error);
             alert('Ошибка при выборе шаблона. Пожалуйста, попробуйте еще раз.');
         }
     });
