@@ -288,25 +288,30 @@ function setupConfirmButton(video) {
     confirmButton.addEventListener('click', function() {
         console.log('Кнопка "ВЫБРАТЬ ШАБЛОН" нажата');
         
-        // Создаем имя локального файла видео на основе ID
-        // Предполагаем, что на сервере файлы хранятся с именами video1.mp4, video2.mp4 и т.д.
-        const videoFileName = `${video.id}.mp4`;
+        // Извлекаем числовой ID из строки (например, из "video1" получаем "1")
+        const numericId = video.id.replace(/[^\d]/g, '');
         
-        // Готовим данные для отправки в Telegram
+        // Формируем имя файла в точном соответствии с ожиданиями бота
+        const videoFileName = `template_${numericId}.mp4`;
+        
+        // Готовим данные для отправки в Telegram в точном формате, который ожидает бот
         const dataToSend = {
-            videoId: video.id,
-            videoName: video.title,
-            videoFile: videoFileName, // Имя файла для локального использования
-            // Важно: не отправляем URL, так как будем использовать локальные файлы
-            action: "process_video",
-            timestamp: new Date().toISOString()
+            action: "process_video", // Первое поле, которое ожидает бот
+            videoFile: videoFileName, // Имя файла как "template_4.mp4"
+            videoId: numericId, // Только числовой ID
+            videoName: video.title, // Название для отображения
+            timestamp: Date.now() // Числовой timestamp в миллисекундах
         };
+        
+        // Логируем отправляемые данные для отладки
+        console.log('Данные для отправки в бот:', dataToSend);
+        console.log('JSON строка для бота:', JSON.stringify(dataToSend));
         
         try {
             // Отправляем данные в Telegram
             tg.sendData(JSON.stringify(dataToSend));
             
-            console.log('Выбран шаблон для обработки:', dataToSend);
+            console.log('Данные успешно отправлены в Telegram');
             
             // Показываем уведомление пользователю
             const notificationElement = document.createElement('div');
