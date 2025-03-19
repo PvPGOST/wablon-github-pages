@@ -79,6 +79,13 @@ document.addEventListener('DOMContentLoaded', function() {
         console.error('ОШИБКА при настройке кнопки подтверждения:', error);
     }
     
+    try {
+        setupLikeButton(video);
+        console.log('Кнопка лайка настроена');
+    } catch (error) {
+        console.error('ОШИБКА при настройке кнопки лайка:', error);
+    }
+    
     // Удаляем все рамки
     removeAllBorders();
     
@@ -295,6 +302,47 @@ function setupConfirmButton(video) {
         } catch (error) {
             console.error('Ошибка при отправке данных в Telegram:', error);
             alert('Ошибка при выборе шаблона. Пожалуйста, попробуйте еще раз.');
+        }
+    });
+}
+
+// Функция для настройки кнопки лайка
+function setupLikeButton(video) {
+    const likeButton = document.getElementById('likeButton');
+    const likeCount = document.getElementById('likeCount');
+    
+    if (!likeButton || !likeCount || !video) {
+        console.error('Элементы лайка не найдены или видео не определено');
+        return;
+    }
+    
+    // Устанавливаем начальное значение счетчика
+    likeCount.textContent = video.likes || 0;
+    
+    // Проверяем, поставил ли пользователь лайк этому видео ранее
+    if (typeof isVideoLiked === 'function' && isVideoLiked(video.id)) {
+        likeButton.classList.add('active');
+    } else {
+        likeButton.classList.remove('active');
+    }
+    
+    // Добавляем обработчик клика
+    likeButton.addEventListener('click', function() {
+        console.log('Кнопка лайка нажата для видео:', video.id);
+        
+        // Меняем состояние лайка
+        if (typeof toggleVideoLike === 'function') {
+            const isLiked = toggleVideoLike(video.id);
+            
+            // Обновляем визуальное состояние
+            if (isLiked) {
+                likeButton.classList.add('active');
+            } else {
+                likeButton.classList.remove('active');
+            }
+            
+            // Обновляем счетчик
+            likeCount.textContent = video.likes || 0;
         }
     });
 }

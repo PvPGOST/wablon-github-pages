@@ -16,12 +16,22 @@ function createVideoPreview(video) {
     previewElement.className = 'video-preview';
     previewElement.setAttribute('data-id', video.id);
     
+    // Добавляем основное содержимое превью
     previewElement.innerHTML = `
         <img class="preview-image" src="${video.preview_url}" alt="${video.title}">
+        <div class="preview-likes-container">
+            <span class="preview-like-icon">❤</span>
+            <span class="preview-like-count">${video.likes || 0}</span>
+        </div>
     `;
     
     // Убираем все дополнительные инлайн-стили
     previewElement.style.cssText = '';
+    
+    // Проверяем, поставил ли пользователь лайк этому видео
+    if (typeof isVideoLiked === 'function' && isVideoLiked(video.id)) {
+        previewElement.querySelector('.preview-like-icon').style.color = '#ff0000';
+    }
     
     // Добавляем обработчик клика для перехода к странице просмотра видео
     previewElement.addEventListener('click', () => {

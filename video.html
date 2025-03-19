@@ -58,6 +58,7 @@
             background-color: #000000;
             color: #ffffff;
             text-align: center;
+            position: relative;
         }
         .video-number {
             font-size: 18px;
@@ -100,6 +101,40 @@
             width: 100%;
             padding: 0;
         }
+        
+        /* Стили для лайков */
+        .likes-container {
+            position: absolute;
+            right: 15px;
+            top: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #ffffff;
+        }
+        
+        .like-button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 24px;
+            color: #ffffff;
+            transition: transform 0.2s, color 0.2s;
+            margin-bottom: 5px;
+        }
+        
+        .like-button.active {
+            color: #ff0000;
+        }
+        
+        .like-button:hover {
+            transform: scale(1.2);
+        }
+        
+        .like-count {
+            font-size: 12px;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
@@ -117,6 +152,12 @@
             <div id="videoTitle" class="video-number"></div>
             <div id="videoDescription" class="video-instruction">Танец победителя</div>
             <button id="confirmButton" class="confirm-button">ВЫБРАТЬ ШАБЛОН</button>
+            
+            <!-- Контейнер для лайков -->
+            <div class="likes-container">
+                <button id="likeButton" class="like-button">❤</button>
+                <span id="likeCount" class="like-count">0</span>
+            </div>
         </div>
     </div>
 

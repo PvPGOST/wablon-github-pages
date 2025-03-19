@@ -7,6 +7,36 @@
     <link rel="stylesheet" href="styles.css">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="videos-data.js"></script>
+    <style>
+        /* Дополнительные стили для превью лайков */
+        .video-preview {
+            position: relative;
+        }
+        
+        .preview-likes-container {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: rgba(0, 0, 0, 0.5);
+            border-radius: 15px;
+            padding: 5px 8px;
+            display: flex;
+            align-items: center;
+            z-index: 5;
+        }
+        
+        .preview-like-icon {
+            color: #ff0000;
+            font-size: 16px;
+            margin-right: 4px;
+        }
+        
+        .preview-like-count {
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
