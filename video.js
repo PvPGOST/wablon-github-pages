@@ -288,66 +288,89 @@ function setupConfirmButton(video) {
     confirmButton.addEventListener('click', function() {
         console.log('Кнопка "ВЫБРАТЬ ШАБЛОН" нажата');
         
-        // Извлекаем числовой ID из строки (например, из "video1" получаем "1")
-        const numericId = video.id.replace(/[^\d]/g, '');
+        // Показываем уведомление сразу после нажатия кнопки
+        const notificationElement = document.createElement('div');
+        notificationElement.className = 'success-notification';
+        notificationElement.textContent = 'Отправка данных...';
+        notificationElement.style.position = 'fixed';
+        notificationElement.style.bottom = '20px';
+        notificationElement.style.left = '50%';
+        notificationElement.style.transform = 'translateX(-50%)';
+        notificationElement.style.backgroundColor = 'rgba(50, 50, 150, 0.9)';
+        notificationElement.style.color = 'white';
+        notificationElement.style.padding = '15px 20px';
+        notificationElement.style.borderRadius = '5px';
+        notificationElement.style.zIndex = '1000';
+        notificationElement.style.textAlign = 'center';
+        notificationElement.style.minWidth = '250px';
         
-        // Формируем имя файла в точном соответствии с ожиданиями бота
-        const videoFileName = `template_${numericId}.mp4`;
+        document.body.appendChild(notificationElement);
         
-        // Готовим данные для отправки в Telegram в точном формате, который ожидает бот
-        const dataToSend = {
-            action: "process_video", // Первое поле, которое ожидает бот
-            videoFile: videoFileName, // Имя файла как "template_4.mp4"
-            videoId: numericId, // Только числовой ID
-            videoName: video.title, // Название для отображения
-            timestamp: Date.now() // Числовой timestamp в миллисекундах
-        };
-        
-        // Логируем отправляемые данные для отладки
-        console.log('Данные для отправки в бот:', dataToSend);
-        console.log('JSON строка для бота:', JSON.stringify(dataToSend));
-        
-        try {
-            // Отправляем данные в Telegram
-            tg.sendData(JSON.stringify(dataToSend));
-            
-            console.log('Данные успешно отправлены в Telegram');
-            
-            // Показываем уведомление пользователю
-            const notificationElement = document.createElement('div');
-            notificationElement.className = 'success-notification';
-            notificationElement.textContent = 'Шаблон выбран! Видео обрабатывается...';
-            notificationElement.style.position = 'fixed';
-            notificationElement.style.bottom = '20px';
-            notificationElement.style.left = '50%';
-            notificationElement.style.transform = 'translateX(-50%)';
-            notificationElement.style.backgroundColor = 'rgba(0, 128, 0, 0.8)';
-            notificationElement.style.color = 'white';
-            notificationElement.style.padding = '10px 20px';
-            notificationElement.style.borderRadius = '5px';
-            notificationElement.style.zIndex = '1000';
-            
-            document.body.appendChild(notificationElement);
-            
-            // Показываем статус обработки
-            setTimeout(() => {
-                notificationElement.textContent = 'Обработка видео...';
-            }, 1000);
-            
-            // Удаляем уведомление через 2 секунды
-            setTimeout(() => {
-                notificationElement.style.opacity = '0';
-                notificationElement.style.transition = 'opacity 0.5s';
-                setTimeout(() => document.body.removeChild(notificationElement), 500);
+        setTimeout(() => {
+            try {
+                // Извлекаем числовой ID из строки (например, из "video1" получаем "1")
+                const numericId = video.id.replace(/[^\d]/g, '');
                 
-                // Закрываем Mini App
-                tg.close();
-            }, 2000);
-            
-        } catch (error) {
-            console.error('Ошибка при выборе шаблона:', error);
-            alert('Ошибка при выборе шаблона. Пожалуйста, попробуйте еще раз.');
-        }
+                // Формируем имя файла в точном соответствии с ожиданиями бота
+                const videoFileName = `template_${numericId}.mp4`;
+                
+                // Подготавливаем данные в точном формате, который ожидает бот
+                const dataToSend = {
+                    action: "process_video",
+                    videoFile: videoFileName,
+                    videoId: numericId,
+                    videoName: video.title,
+                    timestamp: Date.now()
+                };
+                
+                // Показываем данные в уведомлении для отладки
+                notificationElement.textContent = `Отправляется: ${JSON.stringify(dataToSend)}`;
+                notificationElement.style.backgroundColor = 'rgba(0, 100, 150, 0.9)';
+                
+                // Логируем отправляемые данные
+                console.log('Отправка данных в бот:', dataToSend);
+                console.log('JSON строка:', JSON.stringify(dataToSend));
+                
+                // Через секунду пытаемся отправить данные
+                setTimeout(() => {
+                    try {
+                        // Проверяем доступность Telegram WebApp
+                        if (!tg) {
+                            throw new Error('Telegram WebApp не доступен');
+                        }
+                        
+                        // Отправляем данные в Telegram
+                        tg.sendData(JSON.stringify(dataToSend));
+                        
+                        // Обновляем уведомление о успешной отправке
+                        notificationElement.textContent = 'Данные успешно отправлены! Обработка...';
+                        notificationElement.style.backgroundColor = 'rgba(0, 128, 0, 0.9)';
+                        console.log('Данные успешно отправлены в Telegram');
+                        
+                        // Задерживаем закрытие, чтобы убедиться, что данные отправлены
+                        setTimeout(() => {
+                            notificationElement.style.opacity = '0';
+                            notificationElement.style.transition = 'opacity 0.5s';
+                            
+                            // Закрываем Mini App с большой задержкой
+                            setTimeout(() => {
+                                notificationElement.remove();
+                                console.log('Закрытие Mini App');
+                                tg.close();
+                            }, 1000);
+                        }, 3000);
+                    } catch (innerError) {
+                        console.error('Ошибка при отправке данных:', innerError);
+                        notificationElement.textContent = `Ошибка отправки: ${innerError.message}`;
+                        notificationElement.style.backgroundColor = 'rgba(200, 0, 0, 0.9)';
+                    }
+                }, 1000);
+            } catch (error) {
+                console.error('Ошибка при подготовке данных:', error);
+                notificationElement.textContent = `Ошибка: ${error.message}`;
+                notificationElement.style.backgroundColor = 'rgba(200, 0, 0, 0.9)';
+            }
+        }, 500);
     });
 }
 
