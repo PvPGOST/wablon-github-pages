@@ -272,28 +272,106 @@ function setupNextButton(currentVideo) {
     });
 }
 
+// Функция для отладочного вывода
+function debugLog(message, data = null) {
+    if (data) {
+        console.log(`DEBUG: ${message}`, data);
+    } else {
+        console.log(`DEBUG: ${message}`);
+    }
+    
+    // Если есть элемент для отладки, добавляем сообщение туда
+    const debugElement = document.getElementById('debug-output');
+    if (debugElement) {
+        const logItem = document.createElement('div');
+        logItem.className = 'debug-item';
+        logItem.textContent = `${new Date().toISOString().slice(11, 23)} - ${message}`;
+        if (data) {
+            logItem.textContent += ` ${JSON.stringify(data)}`;
+        }
+        debugElement.appendChild(logItem);
+        debugElement.scrollTop = debugElement.scrollHeight;
+    }
+}
+
+// Создаем отладочную панель при загрузке страницы
+document.addEventListener('DOMContentLoaded', function() {
+    debugLog('DOM загружен, инициализация мини-аппа');
+    
+    // Создаем элемент для отладки, если его еще нет
+    if (!document.getElementById('debug-output')) {
+        const debugDiv = document.createElement('div');
+        debugDiv.id = 'debug-output';
+        debugDiv.style.cssText = 'position: fixed; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.7); color: lime; padding: 10px; height: 100px; overflow-y: auto; font-size: 10px; z-index: 9999;';
+        document.body.appendChild(debugDiv);
+        
+        // Добавляем кнопку скрытия/показа отладочной панели
+        const toggleButton = document.createElement('button');
+        toggleButton.textContent = 'Скрыть';
+        toggleButton.style.cssText = 'position: fixed; bottom: 100px; right: 10px; z-index: 10000; background: #333; color: white; border: none; padding: 5px; font-size: 10px;';
+        toggleButton.onclick = function() {
+            if (debugDiv.style.display === 'none') {
+                debugDiv.style.display = 'block';
+                this.textContent = 'Скрыть';
+            } else {
+                debugDiv.style.display = 'none';
+                this.textContent = 'Показать';
+            }
+        };
+        document.body.appendChild(toggleButton);
+    }
+    
+    // Проверяем доступность API Telegram
+    if (window.Telegram && window.Telegram.WebApp) {
+        const webApp = window.Telegram.WebApp;
+        debugLog('Telegram WebApp API доступен', { 
+            version: webApp.version, 
+            platform: webApp.platform,
+            viewportHeight: webApp.viewportHeight,
+            viewportStableHeight: webApp.viewportStableHeight
+        });
+        
+        // Запускаем готовность приложения
+        webApp.ready();
+        debugLog('WebApp.ready() вызван');
+    } else {
+        debugLog('ОШИБКА: Telegram WebApp API не доступен');
+    }
+});
+
 // Функция для настройки кнопки "Подтвердить"
 function setupConfirmButton(video) {
+    debugLog('Настройка кнопки подтверждения для видео', video ? video.id : 'нет видео');
+    
     const confirmButton = document.getElementById('confirmButton');
     if (!confirmButton) {
-        console.error('Элемент с ID "confirmButton" не найден');
+        debugLog('ОШИБКА: Элемент с ID "confirmButton" не найден');
         return;
     }
     
     if (!video) {
         confirmButton.style.display = 'none';
+        debugLog('Кнопка подтверждения скрыта (нет выбранного видео)');
         return;
     }
     
-    confirmButton.addEventListener('click', function() {
-        console.log('Кнопка "ВЫБРАТЬ ШАБЛОН" нажата');
+    // Отображаем кнопку
+    confirmButton.style.display = 'block';
+    debugLog('Кнопка подтверждения отображена');
+    
+    // Очищаем предыдущие обработчики событий
+    const newButton = confirmButton.cloneNode(true);
+    confirmButton.parentNode.replaceChild(newButton, confirmButton);
+    
+    newButton.addEventListener('click', function() {
+        debugLog('Кнопка "ВЫБРАТЬ ШАБЛОН" нажата');
         
         // Создаем и показываем уведомление
         const notificationElement = document.createElement('div');
         notificationElement.className = 'success-notification';
         notificationElement.textContent = 'Отправка шаблона...';
         notificationElement.style.position = 'fixed';
-        notificationElement.style.bottom = '20px';
+        notificationElement.style.bottom = '120px'; // Выше отладочной панели
         notificationElement.style.left = '50%';
         notificationElement.style.transform = 'translateX(-50%)';
         notificationElement.style.backgroundColor = 'rgba(0, 100, 150, 0.9)';
@@ -304,13 +382,16 @@ function setupConfirmButton(video) {
         notificationElement.style.textAlign = 'center';
         
         document.body.appendChild(notificationElement);
+        debugLog('Уведомление создано');
         
         try {
             // Извлекаем числовой ID из строки (например, из "video1" получаем "1")
             const numericId = video.id.replace(/[^\d]/g, '');
+            debugLog('Получен ID видео', numericId);
             
             // Формируем имя файла в точном соответствии с ожиданиями бота
             const videoFileName = `template_${numericId}.mp4`;
+            debugLog('Сформировано имя файла', videoFileName);
             
             // Минимальный набор данных для отправки
             const dataToSend = {
@@ -318,30 +399,75 @@ function setupConfirmButton(video) {
                 videoName: videoFileName
             };
             
-            console.log('Отправка данных в бот:', dataToSend);
+            debugLog('Подготовлены данные для отправки', dataToSend);
             
             // Отправляем данные в Telegram
             if (window.Telegram && window.Telegram.WebApp) {
-                window.Telegram.WebApp.sendData(JSON.stringify(dataToSend));
+                debugLog('Telegram WebApp API доступен, отправляем данные');
                 
-                // Обновляем уведомление
-                notificationElement.textContent = 'Шаблон отправлен на обработку!';
-                notificationElement.style.backgroundColor = 'rgba(0, 128, 0, 0.9)';
+                // Сохраняем данные для проверки
+                localStorage.setItem('lastSentData', JSON.stringify(dataToSend));
+                debugLog('Данные сохранены в localStorage');
                 
-                // Закрываем уведомление через 3 секунды
-                setTimeout(() => {
-                    notificationElement.style.opacity = '0';
-                    notificationElement.style.transition = 'opacity 0.5s';
+                try {
+                    const jsonData = JSON.stringify(dataToSend);
+                    debugLog('Данные преобразованы в JSON', jsonData);
                     
+                    // Добавляем обработчики событий перед отправкой
+                    window.Telegram.WebApp.onEvent('viewportChanged', function() {
+                        debugLog('Событие: viewportChanged - данные могли быть отправлены');
+                    });
+                    
+                    window.Telegram.WebApp.onEvent('mainButtonClicked', function() {
+                        debugLog('Событие: mainButtonClicked');
+                    });
+                    
+                    // Отправляем данные
+                    debugLog('Вызываем WebApp.sendData()');
+                    window.Telegram.WebApp.sendData(jsonData);
+                    debugLog('WebApp.sendData() выполнен успешно');
+                    
+                    // Обновляем уведомление
+                    notificationElement.textContent = 'Шаблон отправлен на обработку!';
+                    notificationElement.style.backgroundColor = 'rgba(0, 128, 0, 0.9)';
+                    debugLog('Уведомление обновлено: успешная отправка');
+                    
+                    // Показываем сообщение Telegram
+                    window.Telegram.WebApp.showPopup({
+                        title: "Шаблон выбран",
+                        message: `Шаблон "${videoFileName}" отправлен на обработку!`,
+                        buttons: [{type: "ok"}]
+                    });
+                    debugLog('Показан диалог Telegram');
+                    
+                    // Закрываем уведомление через 3 секунды
                     setTimeout(() => {
-                        notificationElement.remove();
-                    }, 500);
-                }, 3000);
+                        debugLog('Запускаем закрытие уведомления');
+                        notificationElement.style.opacity = '0';
+                        notificationElement.style.transition = 'opacity 0.5s';
+                        
+                        setTimeout(() => {
+                            notificationElement.remove();
+                            debugLog('Уведомление удалено');
+                        }, 500);
+                    }, 3000);
+                } catch (sendError) {
+                    debugLog('ОШИБКА при отправке данных', { error: sendError.message });
+                    notificationElement.textContent = `Ошибка отправки: ${sendError.message}`;
+                    notificationElement.style.backgroundColor = 'rgba(200, 0, 0, 0.9)';
+                    
+                    // Пробуем показать ошибку через Telegram
+                    try {
+                        window.Telegram.WebApp.showAlert(`Ошибка отправки: ${sendError.message}`);
+                    } catch (popupError) {
+                        debugLog('ОШИБКА при отображении ошибки', { error: popupError.message });
+                    }
+                }
             } else {
                 throw new Error('Telegram WebApp API не доступен');
             }
         } catch (error) {
-            console.error('Ошибка:', error);
+            debugLog('ОШИБКА при подготовке данных', { error: error.message });
             notificationElement.textContent = `Ошибка: ${error.message}`;
             notificationElement.style.backgroundColor = 'rgba(200, 0, 0, 0.9)';
             
@@ -356,6 +482,8 @@ function setupConfirmButton(video) {
             }, 5000);
         }
     });
+    
+    debugLog('Обработчик нажатия установлен для кнопки подтверждения');
 }
 
 // Функция для настройки кнопки лайка
