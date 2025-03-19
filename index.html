@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Выберите шаблон</title>
+    <title>Шаблоны видео</title>
     <link rel="stylesheet" href="styles.css">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="videos-data.js"></script>
@@ -11,80 +11,63 @@
         /* Дополнительные стили для превью лайков */
         .video-preview {
             position: relative;
+            overflow: hidden;
         }
         
         .preview-likes-container {
             position: absolute;
-            top: 10px;
-            right: 10px;
-            background-color: rgba(0, 0, 0, 0.5);
+            top: 8px;
+            right: 8px;
+            background-color: rgba(0, 0, 0, 0.6);
             border-radius: 15px;
-            padding: 5px 8px;
+            padding: 5px 10px;
             display: flex;
             align-items: center;
             z-index: 5;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.1);
         }
         
         .preview-like-icon {
             color: #ff0000;
-            font-size: 16px;
-            margin-right: 4px;
+            font-size: 18px;
+            margin-right: 6px;
+            text-shadow: 0 0 3px rgba(0,0,0,0.5);
         }
         
         .preview-like-count {
             color: white;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        
+        /* Добавляем метку популярности */
+        .popular-label {
+            position: absolute;
+            top: 0;
+            left: 0;
+            background-color: #ff0000;
+            color: white;
+            padding: 4px 8px;
             font-size: 12px;
             font-weight: bold;
+            z-index: 5;
+            transform: rotate(-45deg) translate(-15px, -5px);
+            transform-origin: top left;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1 class="page-title">Выберите шаблон</h1>
-        <div class="video-grid" id="videoGrid">
-            <!-- Видео будут добавлены через JavaScript -->
+        <h1 class="header">Выберите шаблон видео</h1>
+        <div id="videoGrid" class="video-grid">
+            <!-- Сюда будут загружены превью видео -->
+        </div>
+        <div class="footer">
+            <button id="mainConfirmButton" class="confirm-button">ВЫБРАТЬ ШАБЛОН</button>
         </div>
     </div>
-
-    <script>
-    // Встроенный скрипт для отладки
-    document.addEventListener('DOMContentLoaded', function() {
-        // Telegram Web App
-        if (window.Telegram && window.Telegram.WebApp) {
-            let tg = window.Telegram.WebApp;
-            tg.ready();
-            tg.expand();
-        }
-        
-        // Загрузка видео
-        if (typeof videoData !== 'undefined' && Array.isArray(videoData)) {
-            const grid = document.getElementById('videoGrid');
-            videoData.forEach(video => {
-                const div = document.createElement('div');
-                div.className = 'video-preview';
-                div.setAttribute('data-id', video.id);
-                div.innerHTML = `
-                    <img src="${video.preview_url}" alt="${video.title}">
-                `;
-                div.addEventListener('click', () => {
-                    // Убираем подсветку со всех элементов перед новым выбором
-                    document.querySelectorAll('.video-preview').forEach(el => {
-                        el.classList.remove('selected');
-                    });
-                    
-                    // Сохраняем ID выбранного видео и переходим на страницу просмотра
-                    localStorage.setItem('selectedVideoId', video.id);
-                    window.location.href = `video.html?id=${video.id}`;
-                });
-                grid.appendChild(div);
-            });
-            
-            // Убираем проверку и подсветку ранее выбранного видео
-            // Это предотвратит подсветку при возврате на главную страницу
-        } else {
-            console.error('Данные о видео не загружены или имеют неверный формат.');
-        }
-    });
-    </script>
+    <script src="app.js"></script>
 </body>
 </html> 
