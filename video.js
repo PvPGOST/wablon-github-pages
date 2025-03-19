@@ -288,17 +288,50 @@ function setupConfirmButton(video) {
     confirmButton.addEventListener('click', function() {
         console.log('Кнопка "ВЫБРАТЬ ШАБЛОН" нажата');
         
-        // Отправляем данные в Telegram
+        // Готовим данные для отправки в Telegram
+        // Включаем всю необходимую информацию для обработки видео
+        const dataToSend = {
+            selected_video_id: video.id,
+            selected_video_title: video.title,
+            video_url: video.video_url,
+            // Добавляем любые другие параметры, которые нужны для обработки
+            action: "process_video", // Указываем явно, что видео нужно обработать
+            timestamp: new Date().toISOString() // Добавляем временную метку
+        };
+        
         try {
-            tg.sendData(JSON.stringify({
-                selected_video_id: video.id,
-                selected_video_title: video.title
-            }));
+            // Отправляем данные в Telegram
+            tg.sendData(JSON.stringify(dataToSend));
             
-            console.log('Данные успешно отправлены в Telegram');
+            console.log('Данные успешно отправлены в Telegram для обработки:', dataToSend);
             
-            // Закрываем Mini App
-            tg.close();
+            // Показываем уведомление пользователю
+            const notificationElement = document.createElement('div');
+            notificationElement.className = 'success-notification';
+            notificationElement.textContent = 'Видео отправлено на обработку!';
+            notificationElement.style.position = 'fixed';
+            notificationElement.style.bottom = '20px';
+            notificationElement.style.left = '50%';
+            notificationElement.style.transform = 'translateX(-50%)';
+            notificationElement.style.backgroundColor = 'rgba(0, 128, 0, 0.8)';
+            notificationElement.style.color = 'white';
+            notificationElement.style.padding = '10px 20px';
+            notificationElement.style.borderRadius = '5px';
+            notificationElement.style.zIndex = '1000';
+            
+            document.body.appendChild(notificationElement);
+            
+            // Удаляем уведомление через 3 секунды
+            setTimeout(() => {
+                notificationElement.style.opacity = '0';
+                notificationElement.style.transition = 'opacity 0.5s';
+                setTimeout(() => document.body.removeChild(notificationElement), 500);
+            }, 3000);
+            
+            // Закрываем Mini App через небольшую задержку
+            setTimeout(() => {
+                tg.close();
+            }, 1500);
         } catch (error) {
             console.error('Ошибка при отправке данных в Telegram:', error);
             alert('Ошибка при выборе шаблона. Пожалуйста, попробуйте еще раз.');
