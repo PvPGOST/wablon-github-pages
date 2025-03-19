@@ -17,7 +17,7 @@ function createVideoPreview(video) {
     previewElement.setAttribute('data-id', video.id);
     
     // Проверяем, популярное ли это видео (более 10 лайков)
-    const isPopular = (video.likes || 0) >= 10;
+    // const isPopular = (video.likes || 0) >= 10;
     
     // Добавляем основное содержимое превью
     previewElement.innerHTML = `
@@ -26,7 +26,7 @@ function createVideoPreview(video) {
             <span class="preview-like-icon">❤</span>
             <span class="preview-like-count">${video.likes || 0}</span>
         </div>
-        ${isPopular ? '<div class="popular-label">Популярное</div>' : ''}
+        ${/*isPopular ? '<div class="popular-label">Популярное</div>' : ''*/'' }
     `;
     
     // Убираем все дополнительные инлайн-стили
