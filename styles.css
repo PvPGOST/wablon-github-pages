@@ -67,15 +67,46 @@ body {
     border-radius: 12px; /* Закругленные края для изображений */
 }
 
+/* Стили для информации о видео в превью */
 .preview-info {
-    padding: 12px;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(transparent, rgba(0,0,0,0.8));
+    padding: 15px 10px 10px 10px;
+    color: white;
 }
 
 .preview-title {
-    font-size: 16px;
+    font-size: 14px;
     font-weight: 600;
-    margin-bottom: 4px;
-    color: var(--tg-theme-text-color, #222);
+    margin: 0 0 5px 0;
+    line-height: 1.2;
+}
+
+.preview-description {
+    font-size: 12px;
+    margin: 0;
+    opacity: 0.9;
+    line-height: 1.3;
+}
+
+/* Сообщение об отсутствии видео */
+.no-videos {
+    text-align: center;
+    color: #999;
+    font-size: 16px;
+    padding: 40px 20px;
+    grid-column: 1 / -1;
+}
+
+/* Скрываем лайки везде */
+.preview-likes-container,
+.likes-container,
+.like-button,
+.like-count {
+    display: none !important;
 }
 
 /* Стили для страницы просмотра видео */

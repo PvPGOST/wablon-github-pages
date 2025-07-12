@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="styles.css">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="videos-data.js"></script>
+
     <style>
         /* Встроенные базовые стили на случай проблем с загрузкой CSS */
         body {
@@ -24,7 +25,6 @@
             flex-direction: column;
             min-height: 100vh;
         }
-        /* Удаляем встроенные стили для кнопки назад, чтобы использовать стили из CSS файла */
         .video-player-container {
             width: 100%;
             background-color: #000000;
@@ -64,20 +64,17 @@
             font-size: 18px;
             font-weight: 600;
             margin-bottom: 10px;
-            padding-right: 50px; /* Добавляем отступ справа для текста */
-            text-align: left; /* Выравниваем текст по левому краю */
-            word-wrap: break-word; /* Разрешаем перенос длинных слов */
-            overflow: hidden; /* Предотвращаем выход текста за пределы контейнера */
+            text-align: left;
+            word-wrap: break-word;
+            overflow: hidden;
         }
         .video-instruction {
             font-size: 14px;
             opacity: 0.9;
-            padding-right: 50px; /* Добавляем отступ справа для текста */
-            text-align: left; /* Выравниваем текст по левому краю */
-            word-wrap: break-word; /* Разрешаем перенос длинных слов */
-            overflow: hidden; /* Предотвращаем выход текста за пределы контейнера */
+            text-align: left;
+            word-wrap: break-word;
+            overflow: hidden;
         }
-        /* Удаляем встроенные стили для кнопки подтверждения, чтобы использовать стили из CSS файла */
         .spacer {
             flex-grow: 0;
             height: 20px;
@@ -89,7 +86,6 @@
             margin-top: auto;
             color: #ffffff;
         }
-        /* Дополнительные стили для видео */
         video {
             min-height: 250px;
             width: 100%;
@@ -97,11 +93,9 @@
             background-color: #000;
             border: none !important;
         }
-        /* Фиксация для Safari автовоспроизведения */
         video::-webkit-media-controls-start-playback-button {
             display: none !important;
         }
-        /* Стили для навигационных кнопок */
         .navigation-bar {
             display: flex;
             justify-content: space-between;
@@ -109,50 +103,9 @@
             width: 100%;
             padding: 0;
         }
-        
-        /* Стили для лайков */
-        .likes-container {
-            position: absolute;
-            right: 15px;
-            top: 15px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            color: #ffffff;
-            z-index: 10; /* Повышаем z-index чтобы лайки были поверх текста */
-            background-color: rgba(0, 0, 0, 0.5); /* Добавляем полупрозрачный фон */
-            padding: 5px;
-            border-radius: 8px;
-        }
-        
-        .like-button {
-            background: none;
-            border: none;
-            cursor: pointer;
-            font-size: 24px;
-            color: #ffffff;
-            transition: transform 0.2s, color 0.2s;
-            margin-bottom: 5px;
-        }
-        
-        .like-button.active {
-            color: #ff0000;
-        }
-        
-        .like-button:hover {
-            transform: scale(1.2);
-        }
-        
-        .like-count {
-            font-size: 12px;
-            font-weight: bold;
-        }
-        
-        /* Стиль для кнопки подтверждения */
         .confirm-button {
             margin-top: 15px;
             width: 100%;
-            max-width: calc(100% - 50px); /* Учитываем пространство для лайков */
         }
     </style>
 </head>
@@ -169,17 +122,12 @@
         
         <div class="video-info">
             <div id="videoTitle" class="video-number"></div>
-            <div id="videoDescription" class="video-instruction">Танец победителя</div>
+            <div id="videoDescription" class="video-instruction">Описание шаблона</div>
             <button id="confirmButton" class="confirm-button">ВЫБРАТЬ ШАБЛОН</button>
-            
-            <!-- Контейнер для лайков -->
-            <div class="likes-container">
-                <button id="likeButton" class="like-button">❤</button>
-                <span id="likeCount" class="like-count">0</span>
-            </div>
         </div>
     </div>
 
+    <script type="module" src="stagewise-init.js"></script>
     <script src="video.js"></script>
 </body>
 </html> 

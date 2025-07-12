@@ -7,62 +7,61 @@
     <link rel="stylesheet" href="styles.css">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="videos-data.js"></script>
+
     <style>
-        /* Дополнительные стили для превью лайков */
-        .video-preview {
-            position: relative;
-            overflow: hidden;
+        /* Стили для категорий */
+        .categories {
+            display: flex;
+            gap: 10px;
+            padding: 15px;
+            background-color: #000000;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
         }
         
-        .preview-likes-container {
-            position: absolute;
-            top: 8px;
-            right: 8px;
-            background-color: rgba(0, 0, 0, 0.6);
-            border-radius: 15px;
-            padding: 5px 10px;
+        .category-button {
+            background-color: #1a1a1a;
+            color: #ffffff;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            white-space: nowrap;
+            cursor: pointer;
+            transition: all 0.3s ease;
             display: flex;
             align-items: center;
-            z-index: 5;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
-            border: 1px solid rgba(255,255,255,0.1);
+            gap: 5px;
         }
         
-        .preview-like-icon {
-            color: #ff0000;
-            font-size: 18px;
-            margin-right: 6px;
-            text-shadow: 0 0 3px rgba(0,0,0,0.5);
+        .category-button:hover {
+            background-color: #333333;
         }
         
-        .preview-like-count {
+        .category-button.active {
+            background-color: #667eea;
             color: white;
-            font-size: 14px;
-            font-weight: bold;
         }
         
-        /* Добавляем метку популярности */
-        /*
-        .popular-label {
-            position: absolute;
-            top: 0;
-            left: 0;
-            background-color: #ff0000;
-            color: white;
-            padding: 4px 8px;
-            font-size: 12px;
-            font-weight: bold;
-            z-index: 5;
-            transform: rotate(-45deg) translate(-15px, -5px);
-            transform-origin: top left;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        .category-button .icon {
+            font-size: 16px;
         }
-        */
+        
+        /* Убираем стили лайков */
+        .preview-likes-container {
+            display: none;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1 class="header">Выберите шаблон видео</h1>
+        
+        <!-- Категории -->
+        <div class="categories" id="categories">
+            <!-- Категории будут добавлены динамически -->
+        </div>
+        
         <div id="videoGrid" class="video-grid">
             <!-- Сюда будут загружены превью видео -->
         </div>
@@ -70,6 +69,7 @@
             <button id="mainConfirmButton" class="confirm-button">ВЫБРАТЬ ШАБЛОН</button>
         </div>
     </div>
+    <script type="module" src="stagewise-init.js"></script>
     <script src="app.js"></script>
 </body>
 </html> 

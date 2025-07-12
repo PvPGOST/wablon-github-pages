@@ -1,14 +1,27 @@
 // Инициализация Telegram Mini App
-let tg = window.Telegram.WebApp;
+// Проверяем, доступен ли Telegram Web App API
+const isTelegramEnvironment = window.Telegram && window.Telegram.WebApp;
 
-// Сообщаем Telegram, что приложение готово
-tg.ready();
-
-// Устанавливаем тему и кнопки
-tg.expand();
+let tg;
+if (isTelegramEnvironment) {
+    // Реальный Telegram Web App API
+    tg = window.Telegram.WebApp;
+    tg.ready();
+    tg.expand();
+} else {
+    // Mock для локальной разработки
+    tg = {
+        ready: () => console.log('Mock: Telegram WebApp ready'),
+        expand: () => console.log('Mock: Telegram WebApp expand'),
+        sendData: (data) => console.log('Mock sendData:', data),
+        close: () => console.log('Mock close'),
+        showPopup: (options) => console.log('Mock showPopup:', options)
+    };
+}
 
 // Переменная для хранения выбранного видео
 let selectedVideoId = null;
+let currentCategory = 'all';
 
 // Функция для создания элементов превью видео
 function createVideoPreview(video) {
@@ -16,26 +29,14 @@ function createVideoPreview(video) {
     previewElement.className = 'video-preview';
     previewElement.setAttribute('data-id', video.id);
     
-    // Проверяем, популярное ли это видео (более 10 лайков)
-    // const isPopular = (video.likes || 0) >= 10;
-    
-    // Добавляем основное содержимое превью
+    // Добавляем основное содержимое превью без лайков
     previewElement.innerHTML = `
         <img class="preview-image" src="${video.preview_url}" alt="${video.title}">
-        <div class="preview-likes-container">
-            <span class="preview-like-icon">❤</span>
-            <span class="preview-like-count">${video.likes || 0}</span>
+        <div class="preview-info">
+            <h3 class="preview-title">${video.title}</h3>
+            <p class="preview-description">${video.description}</p>
         </div>
-        ${/*isPopular ? '<div class="popular-label">Популярное</div>' : ''*/'' }
     `;
-    
-    // Убираем все дополнительные инлайн-стили
-    previewElement.style.cssText = '';
-    
-    // Проверяем, поставил ли пользователь лайк этому видео
-    if (typeof isVideoLiked === 'function' && isVideoLiked(video.id)) {
-        previewElement.querySelector('.preview-like-icon').style.color = '#ff0000';
-    }
     
     // Добавляем обработчик клика для перехода к странице просмотра видео
     previewElement.addEventListener('click', () => {
@@ -55,6 +56,51 @@ function createVideoPreview(video) {
     return previewElement;
 }
 
+// Функция для создания кнопок категорий
+function createCategoryButtons() {
+    const categoriesContainer = document.getElementById('categories');
+    
+    // Очищаем контейнер
+    categoriesContainer.innerHTML = '';
+    
+    // Создаем кнопки для каждой категории
+    Object.keys(categories).forEach(categoryKey => {
+        const category = categories[categoryKey];
+        const button = document.createElement('button');
+        button.className = 'category-button';
+        button.setAttribute('data-category', categoryKey);
+        
+        if (categoryKey === currentCategory) {
+            button.classList.add('active');
+        }
+        
+        button.innerHTML = `
+            <span class="icon">${category.icon}</span>
+            <span>${category.name}</span>
+        `;
+        
+        button.addEventListener('click', () => {
+            switchCategory(categoryKey);
+        });
+        
+        categoriesContainer.appendChild(button);
+    });
+}
+
+// Функция для переключения категории
+function switchCategory(categoryKey) {
+    currentCategory = categoryKey;
+    
+    // Обновляем активную кнопку
+    document.querySelectorAll('.category-button').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    document.querySelector(`[data-category="${categoryKey}"]`).classList.add('active');
+    
+    // Перезагружаем видео для новой категории
+    loadVideoGrid();
+}
+
 // Функция для загрузки и отображения сетки видео
 function loadVideoGrid() {
     const videoGridElement = document.getElementById('videoGrid');
@@ -64,13 +110,20 @@ function loadVideoGrid() {
     
     // Проверяем, есть ли данные в глобальной переменной
     if (typeof videoData !== 'undefined' && Array.isArray(videoData)) {
-        // Загружаем из глобальной переменной
-        videoData.forEach(video => {
+        // Получаем видео для текущей категории
+        const videosToShow = getVideosByCategory(currentCategory);
+        
+        if (videosToShow.length === 0) {
+            videoGridElement.innerHTML = '<p class="no-videos">В этой категории пока нет видео</p>';
+            return;
+        }
+        
+        // Загружаем видео для текущей категории
+        videosToShow.forEach(video => {
             const previewElement = createVideoPreview(video);
             videoGridElement.appendChild(previewElement);
         });
-    } 
-    else {
+    } else {
         // Если данных нет, показываем сообщение об ошибке
         videoGridElement.innerHTML = '<p class="error-message">Ошибка загрузки данных. Пожалуйста, попробуйте позже.</p>';
     }
@@ -107,14 +160,14 @@ function setupConfirmButton() {
                 tg.close();
             }
         } else {
-            // Если ничего не выбрано, можно показать сообщение или просто ничего не делать
             alert('Пожалуйста, выберите шаблон');
         }
     });
 }
 
-// Загружаем сетку видео и настраиваем кнопку при загрузке страницы
+// Загружаем категории и сетку видео при загрузке страницы
 document.addEventListener('DOMContentLoaded', () => {
+    createCategoryButtons();
     loadVideoGrid();
     setupConfirmButton();
 }); 
