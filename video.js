@@ -130,7 +130,7 @@ function displayVideo(video) {
             <iframe 
                 width="100%" 
                 height="100%" 
-                style="min-height: 250px; border: none !important;" 
+                style="min-height: 250px; max-height: 60vh; border: none !important;" 
                 src="${youtubeUrl}" 
                 frameborder="0" 
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
@@ -150,7 +150,7 @@ function displayVideo(video) {
             <iframe 
                 width="100%" 
                 height="100%" 
-                style="min-height: 250px; border: none !important;" 
+                style="min-height: 250px; max-height: 60vh; border: none !important;" 
                 src="${vimeoUrl}" 
                 frameborder="0" 
                 allow="autoplay; fullscreen; picture-in-picture" 
@@ -166,7 +166,7 @@ function displayVideo(video) {
                 muted 
                 loop 
                 playsinline
-                style="width: 100%; min-height: 250px; border: none !important; background-color: #000;">
+                style="width: 100%; min-height: 250px; max-height: 60vh; border: none !important; background-color: #000; object-fit: contain;">
                 <source src="${video.video_url}" type="video/mp4">
                 Ваш браузер не поддерживает видео.
             </video>
