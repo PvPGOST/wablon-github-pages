@@ -103,6 +103,10 @@
             width: 100%;
             padding: 0;
         }
+        .video-navigation {
+            display: flex;
+            gap: 10px;
+        }
         .confirm-button {
             margin-top: 15px;
             width: 100%;
@@ -113,29 +117,30 @@
     <div class="container">
         <div class="navigation-bar">
             <div id="backButton" class="back-button">Назад</div>
-            <div id="nextButton" class="next-button">Следующее</div>
+            <div class="video-navigation">
+                <div id="prevButton" class="prev-button">◀ Пред.</div>
+                <div id="nextButton" class="next-button">След. ▶</div>
+            </div>
         </div>
         
         <div class="video-player-container">
             <div id="videoContainer" class="video-player"></div>
+            <div class="video-overlay-actions">
+                <button id="favoriteButton" class="favorite-button-overlay">
+                    <span class="favorite-icon">☆</span>
+                </button>
+                <div class="likes-container-overlay">
+                    <button id="likeButton" class="like-button-overlay">
+                        <span class="like-icon">♡</span>
+                    </button>
+                    <span id="likeCount" class="like-count-overlay">0</span>
+                </div>
+            </div>
         </div>
         
         <div class="video-info">
             <div id="videoTitle" class="video-number"></div>
-            <div class="description-with-actions">
-                <div id="videoDescription" class="video-instruction">Описание шаблона</div>
-                <div class="action-buttons">
-                    <button id="favoriteButton" class="favorite-button-compact">
-                        <span class="favorite-icon">☆</span>
-                    </button>
-                    <div class="likes-container-compact">
-                        <button id="likeButton" class="like-button-compact">
-                            <span class="like-icon">♡</span>
-                        </button>
-                        <span id="likeCount" class="like-count">0</span>
-                    </div>
-                </div>
-            </div>
+            <div id="videoDescription" class="video-instruction">Описание шаблона</div>
             <button id="confirmButton" class="confirm-button">ВЫБРАТЬ ШАБЛОН</button>
         </div>
     </div>

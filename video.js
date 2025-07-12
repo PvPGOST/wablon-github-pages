@@ -57,6 +57,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Настраиваем кнопки навигации
     setupBackButton();
+    setupPrevButton(video);
     setupNextButton(video);
     setupConfirmButton(video);
 });
@@ -65,6 +66,12 @@ document.addEventListener('DOMContentLoaded', function() {
 function getVideoIdFromURL() {
     const urlParams = new URLSearchParams(window.location.search);
     return urlParams.get('id');
+}
+
+// Получаем категорию из URL параметров
+function getCategoryFromURL() {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get('category') || 'all';
 }
 
 // Функция для поиска видео по id в массиве данных
@@ -194,7 +201,51 @@ function setupBackButton() {
     }
     
     backButton.addEventListener('click', function() {
-        window.location.href = 'index.html';
+        // Получаем текущую категорию и возвращаемся к ней
+        const currentCategory = getCategoryFromURL();
+        if (currentCategory && currentCategory !== 'all') {
+            window.location.href = `index.html#category=${currentCategory}`;
+        } else {
+            window.location.href = 'index.html';
+        }
+    });
+}
+
+// Функция для настройки кнопки "Предыдущее"
+function setupPrevButton(currentVideo) {
+    const prevButton = document.getElementById('prevButton');
+    if (!prevButton) {
+        return;
+    }
+    
+    prevButton.addEventListener('click', function() {
+        if (!currentVideo) {
+            return;
+        }
+        
+        // Получаем текущую категорию
+        const currentCategory = getCategoryFromURL();
+        
+        // Получаем список видео для текущей категории
+        let categoryVideos;
+        if (typeof getVideosByCategory === 'function') {
+            categoryVideos = getVideosByCategory(currentCategory);
+        } else {
+            categoryVideos = videoData; // Fallback
+        }
+        
+        // Находим предыдущее видео в рамках категории
+        const currentIndex = categoryVideos.findIndex(v => v.id === currentVideo.id);
+        
+        if (currentIndex === -1) {
+            return;
+        }
+        
+        // Переходим к предыдущему видео (циклично в рамках категории)
+        const prevIndex = currentIndex === 0 ? categoryVideos.length - 1 : currentIndex - 1;
+        const prevVideo = categoryVideos[prevIndex];
+        
+        window.location.href = `video.html?id=${prevVideo.id}&category=${currentCategory}`;
     });
 }
 
@@ -210,17 +261,29 @@ function setupNextButton(currentVideo) {
             return;
         }
         
-        // Находим следующее видео
-        const currentIndex = videoData.findIndex(v => v.id === currentVideo.id);
+        // Получаем текущую категорию
+        const currentCategory = getCategoryFromURL();
+        
+        // Получаем список видео для текущей категории
+        let categoryVideos;
+        if (typeof getVideosByCategory === 'function') {
+            categoryVideos = getVideosByCategory(currentCategory);
+        } else {
+            categoryVideos = videoData; // Fallback
+        }
+        
+        // Находим следующее видео в рамках категории
+        const currentIndex = categoryVideos.findIndex(v => v.id === currentVideo.id);
         
         if (currentIndex === -1) {
             return;
         }
         
-        const nextIndex = (currentIndex + 1) % videoData.length;
-        const nextVideo = videoData[nextIndex];
+        // Переходим к следующему видео (циклично в рамках категории)
+        const nextIndex = (currentIndex + 1) % categoryVideos.length;
+        const nextVideo = categoryVideos[nextIndex];
         
-        window.location.href = `video.html?id=${nextVideo.id}`;
+        window.location.href = `video.html?id=${nextVideo.id}&category=${currentCategory}`;
     });
 }
 

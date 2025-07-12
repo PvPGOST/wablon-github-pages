@@ -23,6 +23,15 @@ if (isTelegramEnvironment) {
 let selectedVideoId = null;
 let currentCategory = 'all';
 
+// Функция для получения категории из URL хэша
+function getCategoryFromHash() {
+    const hash = window.location.hash;
+    if (hash.startsWith('#category=')) {
+        return hash.replace('#category=', '');
+    }
+    return 'all';
+}
+
 // Функция для создания элементов превью видео
 function createVideoPreview(video) {
     const previewElement = document.createElement('div');
@@ -122,8 +131,8 @@ function createVideoPreview(video) {
         // Сохраняем ID выбранного видео в localStorage
         localStorage.setItem('selectedVideoId', video.id);
         
-        // Переходим на страницу видео
-        window.location.href = `video.html?id=${video.id}`;
+        // Переходим на страницу видео с информацией о текущей категории
+        window.location.href = `video.html?id=${video.id}&category=${currentCategory}`;
     });
     
     return previewElement;
@@ -309,6 +318,12 @@ function setupConfirmButton() {
 // Загружаем категории и сетку видео при загрузке страницы
 document.addEventListener('DOMContentLoaded', async () => {
     try {
+        // Получаем категорию из URL хэша
+        const hashCategory = getCategoryFromHash();
+        if (hashCategory !== 'all') {
+            currentCategory = hashCategory;
+        }
+        
         // Ждем загрузки избранного из Cloud Storage (если функция существует)
         if (typeof loadFavoritesFromCloud === 'function') {
             await loadFavoritesFromCloud();

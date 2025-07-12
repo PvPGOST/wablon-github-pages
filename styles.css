@@ -118,7 +118,7 @@ body {
     background: rgba(255, 215, 0, 0.3);
 }
 
-/* Стили для системы лайков */
+/* Стили для системы лайков на превью */
 .likes-container {
     position: absolute;
     bottom: 8px;
@@ -126,11 +126,7 @@ body {
     display: flex;
     align-items: center;
     gap: 4px;
-    background: rgba(0, 0, 0, 0.6);
-    border-radius: 16px;
-    padding: 4px 8px;
     z-index: 15;
-    backdrop-filter: blur(4px);
 }
 
 .like-button {
@@ -142,10 +138,11 @@ body {
     align-items: center;
     justify-content: center;
     transition: all 0.2s ease;
+    border-radius: 50%;
 }
 
 .like-button:hover {
-    transform: scale(1.1);
+    transform: scale(1.15);
 }
 
 .like-button:active {
@@ -153,21 +150,24 @@ body {
 }
 
 .like-icon {
-    font-size: 16px;
-    color: #ffffff;
-    transition: color 0.2s ease;
+    font-size: 22px;
+    color: #ff1744;
+    transition: all 0.2s ease;
+    filter: drop-shadow(0 0 4px rgba(255, 23, 68, 0.8));
 }
 
 .like-button.like-active .like-icon {
-    color: #FF4444; /* Красный цвет для активного состояния */
+    color: #ff1744;
+    animation: heartbeat 0.3s ease-in-out;
 }
 
 .like-count {
-    font-size: 12px;
+    font-size: 14px;
     color: #ffffff;
-    font-weight: 500;
+    font-weight: 700;
     min-width: 20px;
     text-align: center;
+    text-shadow: 0 0 4px rgba(0, 0, 0, 0.8);
 }
 
 /* При наведении применяем тень без красной рамки */
@@ -266,7 +266,8 @@ body {
     transition: background-color 0.2s, transform 0.1s;
 }
 
-/* Стили для кнопки "Следующее" */
+/* Стили для кнопок "Предыдущее" и "Следующее" */
+.prev-button,
 .next-button {
     display: inline-block;
     margin: 10px;
@@ -300,6 +301,7 @@ body {
     overflow: hidden;
     background-color: #000;
     border: none !important;
+    position: relative;
 }
 
 .video-player {
@@ -375,13 +377,15 @@ video {
     cursor: pointer;
 }
 
-/* Одинаковые стили для кнопок навигации "Назад" и "Следующее" */
+/* Одинаковые стили для кнопок навигации "Назад", "Предыдущее" и "Следующее" */
 .back-button:hover, 
+.prev-button:hover,
 .next-button:hover {
     background-color: #e60000;
 }
 
 .back-button:active, 
+.prev-button:active,
 .next-button:active {
     transform: translateY(1px);
 }
@@ -401,19 +405,25 @@ video {
 
 .action-buttons {
     display: flex;
+    justify-content: space-between;
     align-items: center;
-    gap: 10px;
+    gap: 20px;
     flex-shrink: 0;
+    margin-top: 15px;
+    margin-bottom: 15px;
 }
 
 .favorite-button-compact {
     background: none;
     border: none;
     cursor: pointer;
-    padding: 6px;
+    padding: 8px;
     border-radius: 50%;
     transition: all 0.2s ease;
     font-size: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .favorite-button-compact .favorite-icon {
@@ -422,7 +432,7 @@ video {
 }
 
 .favorite-button-compact:hover {
-    background-color: rgba(255, 215, 0, 0.2);
+    transform: scale(1.1);
 }
 
 .favorite-button-compact.favorite-active .favorite-icon {
@@ -431,36 +441,189 @@ video {
 
 .likes-container-compact {
     display: flex;
+    flex-direction: column;
     align-items: center;
-    gap: 4px;
+    gap: 8px;
 }
 
 .like-button-compact {
-    background: none;
-    border: none;
+    background: none !important;
+    border: none !important;
     cursor: pointer;
-    padding: 6px;
+    padding: 12px !important;
     border-radius: 50%;
-    transition: all 0.2s ease;
-    font-size: 18px;
+    transition: all 0.3s ease;
+    font-size: 72px !important;
+    transform: scale(1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
 }
 
 .like-button-compact .like-icon {
-    color: #ff4757;
-    transition: color 0.2s ease;
+    color: #ff1744 !important;
+    transition: all 0.3s ease !important;
+    filter: drop-shadow(0 4px 12px rgba(255, 23, 68, 0.6)) 
+            drop-shadow(0 0 20px rgba(255, 23, 68, 0.4)) !important;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3) !important;
+    font-size: inherit !important;
+}
+
+/* Градиент для браузеров, которые поддерживают background-clip: text */
+@supports (-webkit-background-clip: text) or (background-clip: text) {
+    .like-button-compact .like-icon {
+        background: linear-gradient(135deg, #ff1744 0%, #ff6b6b 50%, #ff1744 100%) !important;
+        background-clip: text !important;
+        -webkit-background-clip: text !important;
+        -webkit-text-fill-color: transparent !important;
+        color: transparent !important;
+    }
 }
 
 .like-button-compact:hover {
-    background-color: rgba(255, 71, 87, 0.2);
+    transform: scale(1.2);
+}
+
+.like-button-compact:hover .like-icon {
+    filter: drop-shadow(0 6px 16px rgba(255, 23, 68, 0.8)) 
+            drop-shadow(0 0 30px rgba(255, 23, 68, 0.6));
+    animation: pulse 0.6s ease-in-out;
 }
 
 .like-button-compact.like-active .like-icon {
-    color: #ff4757;
+    background: linear-gradient(135deg, #ff1744 0%, #ff6b6b 50%, #ff1744 100%);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: heartbeat 0.4s ease-in-out;
+}
+
+.like-button-compact:active {
+    transform: scale(0.95);
+}
+
+@keyframes heartbeat {
+    0% { transform: scale(1); }
+    25% { transform: scale(1.3); }
+    50% { transform: scale(1.1); }
+    75% { transform: scale(1.25); }
+    100% { transform: scale(1); }
+}
+
+@keyframes pulse {
+    0% { 
+        filter: drop-shadow(0 4px 12px rgba(255, 23, 68, 0.6)) 
+                drop-shadow(0 0 20px rgba(255, 23, 68, 0.4));
+    }
+    50% { 
+        filter: drop-shadow(0 8px 20px rgba(255, 23, 68, 0.9)) 
+                drop-shadow(0 0 40px rgba(255, 23, 68, 0.7));
+    }
+    100% { 
+        filter: drop-shadow(0 4px 12px rgba(255, 23, 68, 0.6)) 
+                drop-shadow(0 0 20px rgba(255, 23, 68, 0.4));
+    }
 }
 
 .like-count {
-    font-size: 14px;
-    font-weight: 600;
+    font-size: 16px;
+    font-weight: 700;
     color: #fff;
-    min-width: 20px;
+    min-width: 40px;
+    text-align: center;
+}
+
+/* Стили для overlay элементов на видео */
+.video-overlay-actions {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    right: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    z-index: 20;
+}
+
+.favorite-button-overlay {
+    background: rgba(0, 0, 0, 0.7);
+    border: none;
+    cursor: pointer;
+    padding: 12px;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+    font-size: 24px;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(4px);
+}
+
+.favorite-button-overlay:hover {
+    background: rgba(255, 215, 0, 0.2);
+    transform: scale(1.1);
+}
+
+.favorite-button-overlay .favorite-icon {
+    color: #ffd700;
+}
+
+.likes-container-overlay {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+
+.like-button-overlay {
+    background: rgba(0, 0, 0, 0.7);
+    border: none;
+    cursor: pointer;
+    padding: 12px;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+    font-size: 64px;
+    width: 80px;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(4px);
+}
+
+.like-button-overlay:hover {
+    transform: scale(1.15);
+    background: rgba(0, 0, 0, 0.8);
+}
+
+.like-button-overlay .like-icon {
+    color: #ff1744;
+    filter: drop-shadow(0 4px 12px rgba(255, 23, 68, 0.6)) 
+            drop-shadow(0 0 20px rgba(255, 23, 68, 0.4));
+}
+
+.like-button-overlay:hover .like-icon {
+    filter: drop-shadow(0 6px 16px rgba(255, 23, 68, 0.8)) 
+            drop-shadow(0 0 30px rgba(255, 23, 68, 0.6));
+    animation: pulse 0.6s ease-in-out;
+}
+
+.like-button-overlay.like-active .like-icon {
+    animation: heartbeat 0.4s ease-in-out;
+}
+
+.like-count-overlay {
+    font-size: 16px;
+    font-weight: 800;
+    color: #ffffff;
+    text-align: center;
+    background: rgba(0, 0, 0, 0.7);
+    padding: 4px 8px;
+    border-radius: 12px;
+    backdrop-filter: blur(4px);
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+    min-width: 40px;
 } 
