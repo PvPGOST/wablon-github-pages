@@ -6,7 +6,7 @@ const videoData = [
     "video_url": "https://res.cloudinary.com/dg9ievxml/video/upload/v1742256575/lwcehpdoflwsdaabp1ea.mp4",
     "title": "Номер 331",
     "duration": 10, // Длительность в секундах
-    "categories": ["new", "short"], // Может быть в нескольких категориях
+    "categories": ["new", "short", "solo_female"], // Может быть в нескольких категориях
     "preview_time": 2.5,
     "likes": 1010 // Количество лайков
   },
@@ -16,7 +16,7 @@ const videoData = [
     "video_url": "https://res.cloudinary.com/dg9ievxml/video/upload/v1742259893/ff6e3e0b_qu3lha.mp4",
     "title": "Номер 332",
     "duration": 18, // Длительность в секундах
-    "categories": ["new"], // Только новое, популярность определяется автоматически
+    "categories": ["new", "short", "couple"], // Только новое, популярность определяется автоматически
     "preview_time": 1.8,
     "likes": 8744 // Количество лайков
   },
@@ -26,7 +26,7 @@ const videoData = [
     "video_url": "https://res.cloudinary.com/dg9ievxml/video/upload/v1742260073/IMG_4069_ybfkag.mp4",
     "title": "Номер 333",
     "duration": 185, // Длительность в секундах
-    "categories": ["long"], // Только длинное, популярность определяется автоматически
+    "categories": ["long", "oral", "solo_female"], // Только длинное, популярность определяется автоматически
     "preview_time": 3.2,
     "likes": 15624 // Количество лайков
   },
@@ -36,7 +36,7 @@ const videoData = [
     "video_url": "https://res.cloudinary.com/dg9ievxml/video/upload/v1742260079/%D0%B4%D0%BD%D0%BE_2_lb5rsu.mp4",
     "title": "Номер 334",
     "duration": 25, // Длительность в секундах
-    "categories": ["short"], // Только короткое, популярность определяется автоматически
+    "categories": ["short", "couple"], // Только короткое, популярность определяется автоматически
     "preview_time": 0.8,
     "likes": 731 // Количество лайков
   }
@@ -44,14 +44,6 @@ const videoData = [
 
 // Конфигурация категорий
 const categories = {
-  all: {
-    name: "Все",
-    icon: "📱"
-  },
-  favorites: {
-    name: "Избранное",
-    icon: "⭐"
-  },
   new: {
     name: "Новое",
     icon: "✨"
@@ -60,13 +52,33 @@ const categories = {
     name: "Популярное",
     icon: "🔥"
   },
-  short: {
-    name: "Короткое",
-    icon: "⚡"
+  all: {
+    name: "Все",
+    icon: "📱"
+  },
+  solo_female: {
+    name: "Одна",
+    icon: "👩🏻‍🦰"
+  },
+  couple: {
+    name: "М+Ж",
+    icon: "👫"
+  },
+  oral: {
+    name: "Минет",
+    icon: "🪈"
   },
   long: {
-    name: "Длинное",
+    name: "Длинные",
     icon: "📖"
+  },
+  short: {
+    name: "Короткие",
+    icon: "⚡"
+  },
+  favorites: {
+    name: "Избранное",
+    icon: "⭐"
   }
 };
 
@@ -377,18 +389,22 @@ window.checkSystemStatus = function() {
 === ПАМЯТКА ПО КАТЕГОРИЯМ ===
 
 Доступные категории для копирования:
-"new"      - Новое
-"short"    - Короткое
-"long"     - Длинное
+"new"         - Новое
+"short"       - Короткие
+"long"        - Длинные
+"solo_female" - Одна (👩)
+"couple"      - М+Ж (👫)
+"oral"        - Минет (🎺)
 
 СПЕЦИАЛЬНЫЕ КАТЕГОРИИ (НЕ ДОБАВЛЯЙТЕ В videos-data.js):
 "favorites" - Избранное (автоматически управляется системой)
 "popular"   - Популярное (автоматически определяется по количеству лайков ≥ 1, сортировка по убыванию)
+"all"       - Все (показывает все видео)
 
 Примеры использования:
-"categories": ["new"]                // Только в одной категории
-"categories": ["new", "short"]       // В двух категориях
-"categories": ["new", "short", "long"] // В трех категориях
+"categories": ["new"]                        // Только в одной категории
+"categories": ["new", "short"]               // В двух категориях
+"categories": ["new", "short", "solo_female"] // В трех категориях
 
 Шаблон для нового видео:
 {
