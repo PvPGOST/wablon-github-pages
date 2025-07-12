@@ -51,6 +51,10 @@ document.addEventListener('DOMContentLoaded', function() {
     // Отображаем видео
     displayVideo(video);
     
+    // Настраиваем кнопки действий
+    setupFavoriteButton(video);
+    setupLikeButton(video);
+    
     // Настраиваем кнопки навигации
     setupBackButton();
     setupNextButton(video);
@@ -315,6 +319,133 @@ function setupConfirmButton(video) {
                     notificationElement.remove();
                 }, 500);
             }, 5000);
+        }
+    });
+}
+
+// Функция для настройки кнопки избранного
+function setupFavoriteButton(video) {
+    console.log('=== НАСТРОЙКА КНОПКИ ИЗБРАННОГО ===');
+    console.log('Видео:', video);
+    
+    const favoriteButton = document.getElementById('favoriteButton');
+    const favoriteIcon = favoriteButton?.querySelector('.favorite-icon');
+    
+    console.log('Кнопка избранного найдена:', !!favoriteButton);
+    console.log('Иконка избранного найдена:', !!favoriteIcon);
+    
+    if (!favoriteButton || !video) {
+        console.log('Кнопка или видео не найдены, выходим');
+        return;
+    }
+    
+    // Функция для обновления состояния кнопки
+    function updateFavoriteButton() {
+        console.log('Обновляем состояние кнопки избранного');
+        console.log('Функция isVideoFavorite доступна:', typeof isVideoFavorite === 'function');
+        
+        const isFavorite = (typeof isVideoFavorite === 'function') ? isVideoFavorite(video.id) : false;
+        console.log('Видео в избранном:', isFavorite);
+        
+        if (isFavorite) {
+            favoriteIcon.textContent = '★';
+            favoriteButton.classList.add('favorite-active');
+            console.log('Установлена заполненная звезда');
+        } else {
+            favoriteIcon.textContent = '☆';
+            favoriteButton.classList.remove('favorite-active');
+            console.log('Установлена пустая звезда');
+        }
+    }
+    
+    // Обновляем состояние при загрузке
+    updateFavoriteButton();
+    
+    // Обработчик клика
+    favoriteButton.addEventListener('click', async function() {
+        console.log('=== КЛИК ПО КНОПКЕ ИЗБРАННОГО ===');
+        console.log('ID видео:', video.id);
+        
+        try {
+            if (typeof toggleVideoFavorite === 'function') {
+                console.log('Вызываем toggleVideoFavorite');
+                const newFavoriteStatus = await toggleVideoFavorite(video.id);
+                console.log('Получен новый статус:', newFavoriteStatus);
+                
+                updateFavoriteButton();
+                
+                // Показываем уведомление пользователю
+                const message = newFavoriteStatus ? 'Добавлено в избранное' : 'Удалено из избранного';
+                console.log(message + ': ' + video.title);
+                
+                // Тактильная обратная связь
+                if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.HapticFeedback) {
+                    window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
+                }
+            } else {
+                console.warn('toggleVideoFavorite не найдена');
+            }
+        } catch (error) {
+            console.error('Ошибка при переключении избранного:', error);
+        }
+        
+        console.log('=== КОНЕЦ КЛИКА ПО КНОПКЕ ИЗБРАННОГО ===');
+    });
+    
+    console.log('=== КОНЕЦ НАСТРОЙКИ КНОПКИ ИЗБРАННОГО ===');
+}
+
+// Функция для настройки кнопки лайков
+function setupLikeButton(video) {
+    const likeButton = document.getElementById('likeButton');
+    const likeIcon = likeButton?.querySelector('.like-icon');
+    const likeCount = document.getElementById('likeCount');
+    
+    if (!likeButton || !video) {
+        return;
+    }
+    
+    // Функция для обновления состояния кнопки
+    function updateLikeButton() {
+        const isLiked = (typeof isVideoLiked === 'function') ? isVideoLiked(video.id) : false;
+        const likes = (typeof getVideoLikes === 'function') ? getVideoLikes(video.id) : (video.likes || 0);
+        
+        if (isLiked) {
+            likeIcon.textContent = '♥';
+            likeButton.classList.add('like-active');
+        } else {
+            likeIcon.textContent = '♡';
+            likeButton.classList.remove('like-active');
+        }
+        
+        if (likeCount) {
+            likeCount.textContent = likes;
+        }
+    }
+    
+    // Обновляем состояние при загрузке
+    updateLikeButton();
+    
+    // Обработчик клика
+    likeButton.addEventListener('click', async function() {
+        try {
+            if (typeof toggleVideoLike === 'function') {
+                const newLikeStatus = await toggleVideoLike(video.id);
+                updateLikeButton();
+                
+                // Показываем уведомление пользователю
+                const message = newLikeStatus ? 'Лайк поставлен' : 'Лайк убран';
+                console.log(message + ': ' + video.title);
+                
+                // Тактильная обратная связь
+                if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.HapticFeedback) {
+                    window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
+                }
+            } else {
+                console.warn('toggleVideoLike не найдена');
+            }
+        } catch (error) {
+            console.error('Ошибка при переключении лайка:', error);
         }
     });
 } 

@@ -29,14 +29,87 @@ function createVideoPreview(video) {
     previewElement.className = 'video-preview';
     previewElement.setAttribute('data-id', video.id);
     
-    // Добавляем основное содержимое превью без лайков
+    // Добавляем видео превью вместо картинки с указанным временем
+    const previewTime = video.preview_time || 0.1; // По умолчанию 0.1 секунда
     previewElement.innerHTML = `
-        <img class="preview-image" src="${video.preview_url}" alt="${video.title}">
-        <div class="preview-info">
-            <h3 class="preview-title">${video.title}</h3>
-            <p class="preview-description">${video.description}</p>
+        <div class="video-container">
+            <video class="preview-video" preload="metadata" muted>
+                <source src="${video.video_url}#t=${previewTime}" type="video/mp4">
+                <img class="preview-image" src="${video.preview_url}" alt="${video.title}">
+            </video>
+            <div class="video-duration" style="display: none;">0:00</div>
+            <div class="likes-container">
+                <button class="like-button" data-video-id="${video.id}">
+                    <span class="like-icon">♡</span>
+                </button>
+                <span class="like-count">${video.likes || 0}</span>
+            </div>
         </div>
     `;
+    
+    // Получаем элементы для работы с длительностью
+    const videoElement = previewElement.querySelector('.preview-video');
+    const durationElement = previewElement.querySelector('.video-duration');
+    const likeButton = previewElement.querySelector('.like-button');
+    const likeCount = previewElement.querySelector('.like-count');
+    
+    // Обновляем состояние кнопки лайка
+    updateLikeButton(likeButton, video.id);
+    
+    // Обработчик для кнопки лайка
+    likeButton.addEventListener('click', async (e) => {
+        e.stopPropagation(); // Предотвращаем открытие видео при клике на кнопку
+        
+        try {
+            // Проверяем, что функция toggleVideoLike существует
+            if (typeof toggleVideoLike === 'function') {
+                const newLikeStatus = await toggleVideoLike(video.id);
+                updateLikeButton(likeButton, video.id);
+                
+                // Обновляем счетчик лайков
+                if (typeof getVideoLikes === 'function') {
+                    likeCount.textContent = getVideoLikes(video.id);
+                }
+                
+                // Обновляем все счетчики лайков для этого видео на странице
+                updateAllLikeCounters(video.id);
+                
+                // Добавляем тактильную обратную связь (вибрация)
+                if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.HapticFeedback) {
+                    window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
+                }
+            } else {
+                console.warn('toggleVideoLike не найдена, лайки недоступны');
+            }
+        } catch (error) {
+            console.error('Ошибка при переключении лайка:', error);
+        }
+    });
+    
+
+    
+    // Обработчик для получения длительности видео
+    videoElement.addEventListener('loadedmetadata', function() {
+        const duration = Math.floor(videoElement.duration);
+        const minutes = Math.floor(duration / 60);
+        const seconds = duration % 60;
+        const formattedDuration = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+        
+        durationElement.textContent = formattedDuration;
+        durationElement.style.display = 'block';
+        
+        console.log(`Длительность видео ${video.id}: ${formattedDuration}`);
+    });
+    
+    // Обработчик ошибки загрузки видео
+    videoElement.addEventListener('error', function() {
+        console.error(`Ошибка загрузки видео ${video.id}`);
+        // Показываем fallback изображение
+        const imgElement = previewElement.querySelector('.preview-image');
+        if (imgElement) {
+            imgElement.style.display = 'block';
+        }
+    });
     
     // Добавляем обработчик клика для перехода к странице просмотра видео
     previewElement.addEventListener('click', () => {
@@ -56,12 +129,66 @@ function createVideoPreview(video) {
     return previewElement;
 }
 
+// Функция для обновления состояния кнопки лайка
+function updateLikeButton(button, videoId) {
+    const icon = button.querySelector('.like-icon');
+    
+    // Проверяем, что функция isVideoLiked существует
+    const isLiked = (typeof isVideoLiked === 'function') ? isVideoLiked(videoId) : false;
+    
+    if (isLiked) {
+        icon.textContent = '♥'; // Заполненный сердечко
+        button.classList.add('like-active');
+        button.title = 'Убрать лайк';
+    } else {
+        icon.textContent = '♡'; // Пустое сердечко
+        button.classList.remove('like-active');
+        button.title = 'Поставить лайк';
+    }
+}
+
+// Функция для обновления состояния кнопки избранного
+function updateFavoriteButton(button, videoId) {
+    const icon = button.querySelector('.favorite-icon');
+    
+    // Проверяем, что функция isVideoFavorite существует
+    const isFavorite = (typeof isVideoFavorite === 'function') ? isVideoFavorite(videoId) : false;
+    
+    if (isFavorite) {
+        icon.textContent = '★'; // Заполненная звезда
+        button.classList.add('favorite-active');
+        button.title = 'Удалить из избранного';
+    } else {
+        icon.textContent = '☆'; // Пустая звезда
+        button.classList.remove('favorite-active');
+        button.title = 'Добавить в избранное';
+    }
+}
+
+// Функция для обновления всех счетчиков лайков на странице
+function updateAllLikeCounters(videoId) {
+    if (typeof getVideoLikes !== 'function') return;
+    
+    const newLikeCount = getVideoLikes(videoId);
+    const likeCounters = document.querySelectorAll(`[data-video-id="${videoId}"] + .like-count, .like-count`);
+    
+    likeCounters.forEach(counter => {
+        counter.textContent = newLikeCount;
+    });
+}
+
 // Функция для создания кнопок категорий
 function createCategoryButtons() {
     const categoriesContainer = document.getElementById('categories');
     
     // Очищаем контейнер
     categoriesContainer.innerHTML = '';
+    
+    // Проверяем, что переменная categories существует
+    if (typeof categories === 'undefined') {
+        console.error('categories не найдена, кнопки категорий не созданы');
+        return;
+    }
     
     // Создаем кнопки для каждой категории
     Object.keys(categories).forEach(categoryKey => {
@@ -99,10 +226,12 @@ function switchCategory(categoryKey) {
     
     // Перезагружаем видео для новой категории
     loadVideoGrid();
+    
+    console.log(`Переключились на категорию: ${categoryKey}`);
 }
 
 // Функция для загрузки и отображения сетки видео
-function loadVideoGrid() {
+async function loadVideoGrid() {
     const videoGridElement = document.getElementById('videoGrid');
     
     // Очищаем сетку перед загрузкой новых данных
@@ -111,10 +240,22 @@ function loadVideoGrid() {
     // Проверяем, есть ли данные в глобальной переменной
     if (typeof videoData !== 'undefined' && Array.isArray(videoData)) {
         // Получаем видео для текущей категории
-        const videosToShow = getVideosByCategory(currentCategory);
+        let videosToShow = [];
+        
+        if (typeof getVideosByCategory === 'function') {
+            videosToShow = getVideosByCategory(currentCategory);
+        } else {
+            // Fallback - показываем все видео если функция недоступна
+            console.warn('getVideosByCategory не найдена, показываем все видео');
+            videosToShow = videoData;
+        }
         
         if (videosToShow.length === 0) {
-            videoGridElement.innerHTML = '<p class="no-videos">В этой категории пока нет видео</p>';
+            if (currentCategory === 'favorites') {
+                videoGridElement.innerHTML = '<p class="no-videos">У вас пока нет избранных видео.<br>Добавьте видео в избранное, нажав на ⭐</p>';
+            } else {
+                videoGridElement.innerHTML = '<p class="no-videos">В этой категории пока нет видео</p>';
+            }
             return;
         }
         
@@ -166,8 +307,24 @@ function setupConfirmButton() {
 }
 
 // Загружаем категории и сетку видео при загрузке страницы
-document.addEventListener('DOMContentLoaded', () => {
-    createCategoryButtons();
-    loadVideoGrid();
-    setupConfirmButton();
+document.addEventListener('DOMContentLoaded', async () => {
+    try {
+        // Ждем загрузки избранного из Cloud Storage (если функция существует)
+        if (typeof loadFavoritesFromCloud === 'function') {
+            await loadFavoritesFromCloud();
+        } else {
+            console.warn('loadFavoritesFromCloud не найдена, пропускаем загрузку избранного');
+        }
+        
+        createCategoryButtons();
+        await loadVideoGrid();
+        setupConfirmButton();
+    } catch (error) {
+        console.error('Ошибка при инициализации приложения:', error);
+        
+        // Fallback - загружаем без избранного
+        createCategoryButtons();
+        await loadVideoGrid();
+        setupConfirmButton();
+    }
 }); 
