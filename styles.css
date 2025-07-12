@@ -72,6 +72,22 @@ body {
     z-index: 10;
 }
 
+/* Стили для ярлыка NEW */
+.new-badge {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: #ff0000;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    z-index: 15;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
 /* Стили для длительности на странице просмотра видео */
 .video-info .video-duration {
     font-size: 14px;
@@ -129,7 +145,7 @@ body {
     background: rgba(255, 215, 0, 0.3);
 }
 
-/* Стили для системы лайков на превью */
+/* Стили для системы лайков на превью (декоративные) */
 .likes-container {
     position: absolute;
     bottom: 8px;
@@ -140,36 +156,17 @@ body {
     z-index: 15;
 }
 
-.like-button {
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 2px;
+.like-display {
     display: flex;
     align-items: center;
-    justify-content: center;
-    transition: all 0.2s ease;
-    border-radius: 50%;
-}
-
-.like-button:hover {
-    transform: scale(1.15);
-}
-
-.like-button:active {
-    transform: scale(0.95);
+    gap: 2px;
+    pointer-events: none; /* Убираем возможность клика */
 }
 
 .like-icon {
     font-size: 22px;
     color: #ff0000 !important;
-    transition: all 0.2s ease;
     filter: drop-shadow(0 0 4px rgba(255, 0, 0, 0.8));
-}
-
-.like-button.like-active .like-icon {
-    color: #ff0000 !important;
-    animation: heartbeat 0.3s ease-in-out;
 }
 
 .like-count {
@@ -635,4 +632,68 @@ video {
     text-align: center;
     min-width: 50px;
     text-shadow: 0 0 8px rgba(255, 255, 255, 0.5);
+}
+
+/* === ДОПОЛНИТЕЛЬНЫЕ СТИЛИ ДЛЯ СТРАНИЦЫ ПРОСМОТРА ВИДЕО === */
+
+/* Переопределение стилей для video.html */
+.video-info {
+    padding: 15px;
+    background-color: #000000;
+    color: #ffffff;
+    text-align: center;
+    position: relative;
+}
+
+.video-number {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 5px;
+    text-align: left;
+    word-wrap: break-word;
+    overflow: hidden;
+}
+
+.video-instruction {
+    font-size: 14px;
+    opacity: 0.9;
+    text-align: left;
+    word-wrap: break-word;
+    overflow: hidden;
+}
+
+.video-info .video-duration {
+    font-size: 14px;
+    opacity: 0.8;
+    text-align: left;
+    margin-top: 0px;
+    margin-bottom: 15px;
+    color: #cccccc;
+}
+
+.spacer {
+    flex-grow: 0;
+    height: 20px;
+}
+
+.footer {
+    text-align: center;
+    padding: 15px;
+    background-color: #121721;
+    margin-top: auto;
+    color: #ffffff;
+}
+
+video::-webkit-media-controls-start-playbook-button {
+    display: none !important;
+}
+
+.video-navigation {
+    display: flex;
+    gap: 10px;
+}
+
+.confirm-button {
+    margin-top: 15px;
+    width: 100%;
 } 

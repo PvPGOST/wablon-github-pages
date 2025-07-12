@@ -38,6 +38,10 @@ function createVideoPreview(video) {
     previewElement.className = 'video-preview';
     previewElement.setAttribute('data-id', video.id);
     
+    // Проверяем, есть ли категория "new" у видео
+    const hasNewCategory = video.categories && video.categories.includes('new');
+    const newBadge = hasNewCategory ? '<div class="new-badge">NEW</div>' : '';
+    
     // Добавляем видео превью вместо картинки с указанным временем
     const previewTime = video.preview_time || 0.1; // По умолчанию 0.1 секунда
     previewElement.innerHTML = `
@@ -47,11 +51,12 @@ function createVideoPreview(video) {
                 <img class="preview-image" src="${video.preview_url}" alt="${video.title}">
             </video>
             <div class="video-duration" style="display: none;">0:00</div>
+            ${newBadge}
             <div class="likes-container">
-                <button class="like-button" data-video-id="${video.id}">
-                    <span class="like-icon">♡</span>
-                </button>
-                <span class="like-count">${video.likes || 0}</span>
+                <div class="like-display">
+                    <span class="like-icon">❤️</span>
+                    <span class="like-count">${video.likes || 0}</span>
+                </div>
             </div>
         </div>
     `;
@@ -59,41 +64,6 @@ function createVideoPreview(video) {
     // Получаем элементы для работы с длительностью
     const videoElement = previewElement.querySelector('.preview-video');
     const durationElement = previewElement.querySelector('.video-duration');
-    const likeButton = previewElement.querySelector('.like-button');
-    const likeCount = previewElement.querySelector('.like-count');
-    
-    // Обновляем состояние кнопки лайка
-    updateLikeButton(likeButton, video.id);
-    
-    // Обработчик для кнопки лайка
-    likeButton.addEventListener('click', async (e) => {
-        e.stopPropagation(); // Предотвращаем открытие видео при клике на кнопку
-        
-        try {
-            // Проверяем, что функция toggleVideoLike существует
-            if (typeof toggleVideoLike === 'function') {
-                const newLikeStatus = await toggleVideoLike(video.id);
-                updateLikeButton(likeButton, video.id);
-                
-                // Обновляем счетчик лайков
-                if (typeof getVideoLikes === 'function') {
-                    likeCount.textContent = getVideoLikes(video.id);
-                }
-                
-                // Обновляем все счетчики лайков для этого видео на странице
-                updateAllLikeCounters(video.id);
-                
-                // Добавляем тактильную обратную связь (вибрация)
-                if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.HapticFeedback) {
-                    window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
-                }
-            } else {
-                console.warn('toggleVideoLike не найдена, лайки недоступны');
-            }
-        } catch (error) {
-            console.error('Ошибка при переключении лайка:', error);
-        }
-    });
     
 
     

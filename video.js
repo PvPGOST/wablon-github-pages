@@ -60,8 +60,6 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Настраиваем кнопки навигации
     setupBackButton();
-    setupPrevButton(video);
-    setupNextButton(video);
     setupConfirmButton(video);
 });
 
@@ -214,81 +212,7 @@ function setupBackButton() {
     });
 }
 
-// Функция для настройки кнопки "Предыдущее"
-function setupPrevButton(currentVideo) {
-    const prevButton = document.getElementById('prevButton');
-    if (!prevButton) {
-        return;
-    }
-    
-    prevButton.addEventListener('click', function() {
-        if (!currentVideo) {
-            return;
-        }
-        
-        // Получаем текущую категорию
-        const currentCategory = getCategoryFromURL();
-        
-        // Получаем список видео для текущей категории
-        let categoryVideos;
-        if (typeof getVideosByCategory === 'function') {
-            categoryVideos = getVideosByCategory(currentCategory);
-        } else {
-            categoryVideos = videoData; // Fallback
-        }
-        
-        // Находим предыдущее видео в рамках категории
-        const currentIndex = categoryVideos.findIndex(v => v.id === currentVideo.id);
-        
-        if (currentIndex === -1) {
-            return;
-        }
-        
-        // Переходим к предыдущему видео (циклично в рамках категории)
-        const prevIndex = currentIndex === 0 ? categoryVideos.length - 1 : currentIndex - 1;
-        const prevVideo = categoryVideos[prevIndex];
-        
-        window.location.href = `video.html?id=${prevVideo.id}&category=${currentCategory}`;
-    });
-}
 
-// Функция для настройки кнопки "Следующее"
-function setupNextButton(currentVideo) {
-    const nextButton = document.getElementById('nextButton');
-    if (!nextButton) {
-        return;
-    }
-    
-    nextButton.addEventListener('click', function() {
-        if (!currentVideo) {
-            return;
-        }
-        
-        // Получаем текущую категорию
-        const currentCategory = getCategoryFromURL();
-        
-        // Получаем список видео для текущей категории
-        let categoryVideos;
-        if (typeof getVideosByCategory === 'function') {
-            categoryVideos = getVideosByCategory(currentCategory);
-        } else {
-            categoryVideos = videoData; // Fallback
-        }
-        
-        // Находим следующее видео в рамках категории
-        const currentIndex = categoryVideos.findIndex(v => v.id === currentVideo.id);
-        
-        if (currentIndex === -1) {
-            return;
-        }
-        
-        // Переходим к следующему видео (циклично в рамках категории)
-        const nextIndex = (currentIndex + 1) % categoryVideos.length;
-        const nextVideo = categoryVideos[nextIndex];
-        
-        window.location.href = `video.html?id=${nextVideo.id}&category=${currentCategory}`;
-    });
-}
 
 // Функция для настройки кнопки "Подтвердить"
 function setupConfirmButton(video) {

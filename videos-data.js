@@ -16,7 +16,7 @@ const videoData = [
     "video_url": "https://res.cloudinary.com/dg9ievxml/video/upload/v1742259893/ff6e3e0b_qu3lha.mp4",
     "title": "Номер 332",
     "duration": 18, // Длительность в секундах
-    "categories": ["new", "popular"], // Новое и популярное
+    "categories": ["new"], // Только новое, популярность определяется автоматически
     "preview_time": 1.8,
     "likes": 8744 // Количество лайков
   },
@@ -26,7 +26,7 @@ const videoData = [
     "video_url": "https://res.cloudinary.com/dg9ievxml/video/upload/v1742260073/IMG_4069_ybfkag.mp4",
     "title": "Номер 333",
     "duration": 185, // Длительность в секундах
-    "categories": ["popular", "long"], // Популярное и длинное
+    "categories": ["long"], // Только длинное, популярность определяется автоматически
     "preview_time": 3.2,
     "likes": 15624 // Количество лайков
   },
@@ -36,7 +36,7 @@ const videoData = [
     "video_url": "https://res.cloudinary.com/dg9ievxml/video/upload/v1742260079/%D0%B4%D0%BD%D0%BE_2_lb5rsu.mp4",
     "title": "Номер 334",
     "duration": 25, // Длительность в секундах
-    "categories": ["popular", "short"], // Популярное и короткое
+    "categories": ["short"], // Только короткое, популярность определяется автоматически
     "preview_time": 0.8,
     "likes": 731 // Количество лайков
   }
@@ -79,7 +79,21 @@ function getVideosByCategory(category) {
     // Получаем избранные видео из Cloud Storage
     return getFavoriteVideos();
   }
+  if (category === 'popular') {
+    // Динамически определяем популярные видео по количеству лайков
+    return getPopularVideos();
+  }
   return videoData.filter(video => video.categories.includes(category));
+}
+
+// Функция для получения популярных видео (динамически)
+function getPopularVideos() {
+  // Считаем популярными видео с лайками больше 0
+  const popularThreshold = 1;
+  
+  return videoData
+    .filter(video => video.likes >= popularThreshold)
+    .sort((a, b) => b.likes - a.likes); // Сортируем по убыванию лайков (самые популярные первыми)
 }
 
 // Функция для расчета токенов по длительности (1 секунда = 50 токенов)
@@ -364,17 +378,17 @@ window.checkSystemStatus = function() {
 
 Доступные категории для копирования:
 "new"      - Новое
-"popular"  - Популярное  
 "short"    - Короткое
 "long"     - Длинное
 
-СПЕЦИАЛЬНЫЕ КАТЕГОРИИ:
-"favorites" - Избранное (автоматически управляется системой, не добавляйте в videos-data.js)
+СПЕЦИАЛЬНЫЕ КАТЕГОРИИ (НЕ ДОБАВЛЯЙТЕ В videos-data.js):
+"favorites" - Избранное (автоматически управляется системой)
+"popular"   - Популярное (автоматически определяется по количеству лайков ≥ 1, сортировка по убыванию)
 
 Примеры использования:
-"categories": ["new"]                    // Только в одной категории
-"categories": ["new", "popular"]         // В двух категориях
-"categories": ["new", "popular", "short"] // В трех категориях
+"categories": ["new"]                // Только в одной категории
+"categories": ["new", "short"]       // В двух категориях
+"categories": ["new", "short", "long"] // В трех категориях
 
 Шаблон для нового видео:
 {
