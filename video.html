@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Просмотр видео</title>
-    <link rel="stylesheet" href="styles.css?v=2.6">
+    <link rel="stylesheet" href="styles.css?v=3.1">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="videos-data.js"></script>
 
@@ -63,7 +63,7 @@
         .video-number {
             font-size: 18px;
             font-weight: 600;
-            margin-bottom: 10px;
+            margin-bottom: 5px;
             text-align: left;
             word-wrap: break-word;
             overflow: hidden;
@@ -74,6 +74,14 @@
             text-align: left;
             word-wrap: break-word;
             overflow: hidden;
+        }
+        .video-duration {
+            font-size: 14px;
+            opacity: 0.8;
+            text-align: left;
+            margin-top: 0px;
+            margin-bottom: 15px;
+            color: #cccccc;
         }
         .spacer {
             flex-grow: 0;
@@ -129,7 +137,10 @@
         
         <div class="video-info">
             <div class="video-header">
-                <div id="videoTitle" class="video-number"></div>
+                <div>
+                    <div id="videoTitle" class="video-number"></div>
+                    <div id="videoDescription" class="video-duration">Длительность видео</div>
+                </div>
                 <div class="video-actions">
                     <button id="favoriteButton" class="favorite-button-video">
                         <span class="favorite-icon">☆</span>
@@ -142,7 +153,6 @@
                     </div>
                 </div>
             </div>
-            <div id="videoDescription" class="video-instruction">Описание шаблона</div>
             <button id="confirmButton" class="confirm-button">ВЫБРАТЬ ШАБЛОН</button>
         </div>
     </div>

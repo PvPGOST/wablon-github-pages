@@ -57,8 +57,8 @@ body {
 
 /* Старые стили для .video-info убраны - теперь используем .video-preview .video-info */
 
-/* Стили для отображения длительности видео */
-.video-duration {
+/* Стили для отображения длительности видео на превью */
+.video-preview .video-duration {
     position: absolute;
     bottom: 8px;
     right: 8px;
@@ -70,6 +70,17 @@ body {
     font-weight: 500;
     backdrop-filter: blur(4px);
     z-index: 10;
+}
+
+/* Стили для длительности на странице просмотра видео */
+.video-info .video-duration {
+    font-size: 14px;
+    opacity: 0.8;
+    text-align: left;
+    margin-top: 5px;
+    margin-bottom: 15px;
+    color: #cccccc;
+    position: static;
 }
 
 /* Стили для кнопки избранного */

@@ -46,7 +46,10 @@ document.addEventListener('DOMContentLoaded', function() {
     // Устанавливаем заголовок и описание
     document.title = video.title;
     document.getElementById('videoTitle').textContent = video.title || 'Без названия';
-    document.getElementById('videoDescription').textContent = video.description || '';
+    
+    // Устанавливаем длительность и токены
+    const durationText = (typeof getDurationText === 'function') ? getDurationText(video.id) : 'Длительность не указана';
+    document.getElementById('videoDescription').textContent = durationText;
     
     // Отображаем видео
     displayVideo(video);

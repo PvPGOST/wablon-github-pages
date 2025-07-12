@@ -4,8 +4,8 @@ const videoData = [
     "id": "video1",
     "preview_url": "https://i.ibb.co/mC4Lx2zT/le-N3-Sl-Cg16-U.jpg",
     "video_url": "https://res.cloudinary.com/dg9ievxml/video/upload/v1742256575/lwcehpdoflwsdaabp1ea.mp4",
-    "title": "Видео 452",
-    "description": "Длительность 30 секунд=1500 токенов",
+    "title": "Номер 331",
+    "duration": 10, // Длительность в секундах
     "categories": ["new", "short"], // Может быть в нескольких категориях
     "preview_time": 2.5,
     "likes": 1010 // Количество лайков
@@ -14,8 +14,8 @@ const videoData = [
     "id": "video2",
     "preview_url": "https://i.ibb.co/6RwzDzyH/photo-2025-03-01-04-59-22.jpg",
     "video_url": "https://res.cloudinary.com/dg9ievxml/video/upload/v1742259893/ff6e3e0b_qu3lha.mp4",
-    "title": "Видео №452",
-    "description": "30 секунд= 1500 токенов",
+    "title": "Номер 332",
+    "duration": 18, // Длительность в секундах
     "categories": ["new", "popular"], // Новое и популярное
     "preview_time": 1.8,
     "likes": 8744 // Количество лайков
@@ -24,8 +24,8 @@ const videoData = [
     "id": "video3",
     "preview_url": "https://i.ibb.co/4w8ng4SH/photo-2025-01-09-01-48-05.jpg",
     "video_url": "https://res.cloudinary.com/dg9ievxml/video/upload/v1742260073/IMG_4069_ybfkag.mp4",
-    "title": "№452",
-    "description": "30сек = 1500 токенов",
+    "title": "Номер 333",
+    "duration": 185, // Длительность в секундах
     "categories": ["popular", "long"], // Популярное и длинное
     "preview_time": 3.2,
     "likes": 15624 // Количество лайков
@@ -35,7 +35,7 @@ const videoData = [
     "preview_url": "https://i.ibb.co/84sXfkKL/5224733158040264968-1.jpg",
     "video_url": "https://res.cloudinary.com/dg9ievxml/video/upload/v1742260079/%D0%B4%D0%BD%D0%BE_2_lb5rsu.mp4",
     "title": "Номер 334",
-    "description": "Простой и стильный шаблон",
+    "duration": 25, // Длительность в секундах
     "categories": ["popular", "short"], // Популярное и короткое
     "preview_time": 0.8,
     "likes": 731 // Количество лайков
@@ -80,6 +80,22 @@ function getVideosByCategory(category) {
     return getFavoriteVideos();
   }
   return videoData.filter(video => video.categories.includes(category));
+}
+
+// Функция для расчета токенов по длительности (1 секунда = 50 токенов)
+function calculateTokens(durationInSeconds) {
+  return durationInSeconds * 50;
+}
+
+// Функция для получения строки с длительностью и токенами
+function getDurationText(videoId) {
+  const video = videoData.find(v => v.id === videoId);
+  if (!video || !video.duration) {
+    return 'Длительность не указана';
+  }
+  
+  const tokens = calculateTokens(video.duration);
+  return `${video.duration} секунд = ${tokens} токенов`;
 }
 
 // === СИСТЕМА ИЗБРАННОГО ===
@@ -366,9 +382,8 @@ window.checkSystemStatus = function() {
   "preview_url": "FALLBACK_IMAGE_URL", // Показывается если видео не загрузится
   "video_url": "VIDEO_URL",
   "title": "НАЗВАНИЕ",
-  "description": "ОПИСАНИЕ",
+  "duration": 30, // Длительность в секундах (1 секунда = 50 токенов)
   "categories": ["ВЫБЕРИ_КАТЕГОРИИ"], // Скопируй нужные из списка выше
-  "duration": "short", // short, medium, long
   "preview_time": 2.5, // Секунда для превью (можно с десятыми)
   "likes": 0 // Начальное количество лайков
 }
@@ -376,6 +391,7 @@ window.checkSystemStatus = function() {
 ВАЖНО: 
 - preview_url теперь только для fallback, основное превью берется из видео
 - preview_time определяет какой кадр показывать в превью
+- duration - длительность в секундах, автоматически рассчитывается в токены (1 сек = 50 токенов)
 - Можно добавлять видео в несколько категорий одновременно
 - Категория "Избранное" управляется пользователем через кнопки ⭐
 - Данные избранного сохраняются в Telegram Cloud Storage
