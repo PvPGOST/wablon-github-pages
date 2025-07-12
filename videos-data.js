@@ -4,10 +4,9 @@ const videoData = [
     "id": "video1",
     "preview_url": "https://i.ibb.co/mC4Lx2zT/le-N3-Sl-Cg16-U.jpg",
     "video_url": "https://res.cloudinary.com/dg9ievxml/video/upload/v1742256575/lwcehpdoflwsdaabp1ea.mp4",
-    "title": "Белые кроссовки Nike",
-    "description": "Стильные белые кроссовки для повседневного ношения",
+    "title": "Видео 452",
+    "description": "Длительность 30 секунд=1500 токенов",
     "categories": ["new", "short"], // Может быть в нескольких категориях
-    "duration": "short",
     "preview_time": 2.5,
     "likes": 1010 // Количество лайков
   },
@@ -15,10 +14,9 @@ const videoData = [
     "id": "video2",
     "preview_url": "https://i.ibb.co/6RwzDzyH/photo-2025-03-01-04-59-22.jpg",
     "video_url": "https://res.cloudinary.com/dg9ievxml/video/upload/v1742259893/ff6e3e0b_qu3lha.mp4",
-    "title": "Динамичная презентация",
-    "description": "Яркий шаблон для презентации товаров",
+    "title": "Видео №452",
+    "description": "30 секунд= 1500 токенов",
     "categories": ["new", "popular"], // Новое и популярное
-    "duration": "medium",
     "preview_time": 1.8,
     "likes": 8744 // Количество лайков
   },
@@ -26,10 +24,9 @@ const videoData = [
     "id": "video3",
     "preview_url": "https://i.ibb.co/4w8ng4SH/photo-2025-01-09-01-48-05.jpg",
     "video_url": "https://res.cloudinary.com/dg9ievxml/video/upload/v1742260073/IMG_4069_ybfkag.mp4",
-    "title": "Классический стиль",
-    "description": "Элегантный шаблон для бизнеса",
+    "title": "№452",
+    "description": "30сек = 1500 токенов",
     "categories": ["popular", "long"], // Популярное и длинное
-    "duration": "long",
     "preview_time": 3.2,
     "likes": 15624 // Количество лайков
   },
@@ -37,10 +34,9 @@ const videoData = [
     "id": "video4",
     "preview_url": "https://i.ibb.co/84sXfkKL/5224733158040264968-1.jpg",
     "video_url": "https://res.cloudinary.com/dg9ievxml/video/upload/v1742260079/%D0%B4%D0%BD%D0%BE_2_lb5rsu.mp4",
-    "title": "Минималистичный дизайн",
+    "title": "Номер 334",
     "description": "Простой и стильный шаблон",
     "categories": ["popular", "short"], // Популярное и короткое
-    "duration": "short",
     "preview_time": 0.8,
     "likes": 731 // Количество лайков
   }

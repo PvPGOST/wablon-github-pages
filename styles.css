@@ -125,7 +125,7 @@ body {
     left: 8px;
     display: flex;
     align-items: center;
-    gap: 4px;
+    gap: 2px;
     z-index: 15;
 }
 
@@ -151,13 +151,13 @@ body {
 
 .like-icon {
     font-size: 22px;
-    color: #ff1744;
+    color: #ff0000 !important;
     transition: all 0.2s ease;
-    filter: drop-shadow(0 0 4px rgba(255, 23, 68, 0.8));
+    filter: drop-shadow(0 0 4px rgba(255, 0, 0, 0.8));
 }
 
 .like-button.like-active .like-icon {
-    color: #ff1744;
+    color: #ff0000 !important;
     animation: heartbeat 0.3s ease-in-out;
 }
 
@@ -168,6 +168,7 @@ body {
     min-width: 20px;
     text-align: center;
     text-shadow: 0 0 4px rgba(0, 0, 0, 0.8);
+    margin-left: -4px;
 }
 
 /* При наведении применяем тень без красной рамки */
