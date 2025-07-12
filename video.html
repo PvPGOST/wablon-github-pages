@@ -125,21 +125,23 @@
         
         <div class="video-player-container">
             <div id="videoContainer" class="video-player"></div>
-            <div class="video-overlay-actions">
-                <button id="favoriteButton" class="favorite-button-overlay">
-                    <span class="favorite-icon">☆</span>
-                </button>
-                <div class="likes-container-overlay">
-                    <button id="likeButton" class="like-button-overlay">
-                        <span class="like-icon">♡</span>
-                    </button>
-                    <span id="likeCount" class="like-count-overlay">0</span>
-                </div>
-            </div>
         </div>
         
         <div class="video-info">
-            <div id="videoTitle" class="video-number"></div>
+            <div class="video-header">
+                <div id="videoTitle" class="video-number"></div>
+                <div class="video-actions">
+                    <button id="favoriteButton" class="favorite-button-video">
+                        <span class="favorite-icon">☆</span>
+                    </button>
+                    <div class="likes-container-video">
+                        <button id="likeButton" class="like-button-video">
+                            <span class="like-icon">♡</span>
+                        </button>
+                        <span id="likeCount" class="like-count-video">0</span>
+                    </div>
+                </div>
+            </div>
             <div id="videoDescription" class="video-instruction">Описание шаблона</div>
             <button id="confirmButton" class="confirm-button">ВЫБРАТЬ ШАБЛОН</button>
         </div>

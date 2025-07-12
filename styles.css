@@ -534,96 +534,90 @@ video {
     text-align: center;
 }
 
-/* Стили для overlay элементов на видео */
-.video-overlay-actions {
-    position: absolute;
-    top: 15px;
-    left: 15px;
-    right: 15px;
+/* Стили для элементов под видео */
+.video-header {
     display: flex;
     justify-content: space-between;
-    align-items: flex-start;
-    z-index: 20;
+    align-items: center;
+    margin-bottom: 15px;
 }
 
-.favorite-button-overlay {
-    background: rgba(0, 0, 0, 0.7);
+.video-actions {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.favorite-button-video {
+    background: none;
     border: none;
     cursor: pointer;
-    padding: 12px;
+    padding: 8px;
     border-radius: 50%;
     transition: all 0.3s ease;
-    font-size: 24px;
-    width: 50px;
-    height: 50px;
+    font-size: 32px;
+    width: 56px;
+    height: 56px;
     display: flex;
     align-items: center;
     justify-content: center;
-    backdrop-filter: blur(4px);
 }
 
-.favorite-button-overlay:hover {
-    background: rgba(255, 215, 0, 0.2);
+.favorite-button-video .favorite-icon {
+    color: rgba(255, 215, 0, 0.3);
+    transition: all 0.3s ease;
+}
+
+.favorite-button-video:hover .favorite-icon {
+    color: rgba(255, 215, 0, 0.7);
     transform: scale(1.1);
 }
 
-.favorite-button-overlay .favorite-icon {
+.favorite-button-video.favorite-active .favorite-icon {
     color: #ffd700;
 }
 
-.likes-container-overlay {
+.likes-container-video {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 8px;
+    gap: 4px;
 }
 
-.like-button-overlay {
-    background: rgba(0, 0, 0, 0.7);
+.like-button-video {
+    background: none;
     border: none;
     cursor: pointer;
-    padding: 12px;
+    padding: 8px;
     border-radius: 50%;
     transition: all 0.3s ease;
-    font-size: 64px;
-    width: 80px;
-    height: 80px;
+    font-size: 48px;
+    width: 72px;
+    height: 72px;
     display: flex;
     align-items: center;
     justify-content: center;
-    backdrop-filter: blur(4px);
 }
 
-.like-button-overlay:hover {
-    transform: scale(1.15);
-    background: rgba(0, 0, 0, 0.8);
+.like-button-video .like-icon {
+    color: rgba(255, 23, 68, 0.3);
+    transition: all 0.3s ease;
 }
 
-.like-button-overlay .like-icon {
+.like-button-video:hover .like-icon {
+    color: rgba(255, 23, 68, 0.7);
+    transform: scale(1.1);
+}
+
+.like-button-video.like-active .like-icon {
     color: #ff1744;
-    filter: drop-shadow(0 4px 12px rgba(255, 23, 68, 0.6)) 
-            drop-shadow(0 0 20px rgba(255, 23, 68, 0.4));
-}
-
-.like-button-overlay:hover .like-icon {
-    filter: drop-shadow(0 6px 16px rgba(255, 23, 68, 0.8)) 
-            drop-shadow(0 0 30px rgba(255, 23, 68, 0.6));
-    animation: pulse 0.6s ease-in-out;
-}
-
-.like-button-overlay.like-active .like-icon {
     animation: heartbeat 0.4s ease-in-out;
 }
 
-.like-count-overlay {
+.like-count-video {
     font-size: 16px;
     font-weight: 800;
     color: #ffffff;
     text-align: center;
-    background: rgba(0, 0, 0, 0.7);
-    padding: 4px 8px;
-    border-radius: 12px;
-    backdrop-filter: blur(4px);
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
     min-width: 40px;
 } 
