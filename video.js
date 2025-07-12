@@ -411,11 +411,11 @@ function setupFavoriteButton(video) {
         console.log('Видео в избранном:', isFavorite);
         
         if (isFavorite) {
-            favoriteIcon.textContent = '⭐';
+            favoriteIcon.textContent = '★';
             favoriteButton.classList.add('favorite-active');
             console.log('Установлена заполненная звезда');
         } else {
-            favoriteIcon.textContent = '★';
+            favoriteIcon.textContent = '☆';
             favoriteButton.classList.remove('favorite-active');
             console.log('Установлена пустая звезда');
         }

@@ -555,9 +555,9 @@ video {
     padding: 0;
     border-radius: 50%;
     transition: all 0.3s ease;
-    font-size: 60px !important;
-    width: 80px;
-    height: 80px;
+    font-size: 42px !important;
+    width: 56px;
+    height: 56px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -592,9 +592,9 @@ video {
     padding: 0;
     border-radius: 50%;
     transition: all 0.3s ease;
-    font-size: 68px !important;
-    width: 82px;
-    height: 82px;
+    font-size: 48px !important;
+    width: 58px;
+    height: 58px;
     display: flex;
     align-items: center;
     justify-content: center;

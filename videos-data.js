@@ -9,7 +9,7 @@ const videoData = [
     "categories": ["new", "short"], // Может быть в нескольких категориях
     "duration": "short",
     "preview_time": 2.5,
-    "likes": 42 // Количество лайков
+    "likes": 1010 // Количество лайков
   },
   {
     "id": "video2",
@@ -20,7 +20,7 @@ const videoData = [
     "categories": ["new", "popular"], // Новое и популярное
     "duration": "medium",
     "preview_time": 1.8,
-    "likes": 87 // Количество лайков
+    "likes": 8744 // Количество лайков
   },
   {
     "id": "video3",
@@ -31,7 +31,7 @@ const videoData = [
     "categories": ["popular", "long"], // Популярное и длинное
     "duration": "long",
     "preview_time": 3.2,
-    "likes": 156 // Количество лайков
+    "likes": 15624 // Количество лайков
   },
   {
     "id": "video4",
@@ -42,7 +42,7 @@ const videoData = [
     "categories": ["popular", "short"], // Популярное и короткое
     "duration": "short",
     "preview_time": 0.8,
-    "likes": 73 // Количество лайков
+    "likes": 731 // Количество лайков
   }
 ];
 
