@@ -160,21 +160,52 @@ function displayVideo(video) {
     } else {
         // Для обычных видео (Cloudinary и др.)
         videoContainer.innerHTML = `
-            <video 
-                id="videoElement"
-                autoplay 
-                muted 
-                loop 
-                playsinline
-                style="width: 100%; min-height: 250px; max-height: 60vh; border: none !important; background-color: #000; object-fit: contain;">
-                <source src="${video.video_url}" type="video/mp4">
-                Ваш браузер не поддерживает видео.
-            </video>
+            <div class="video-fallback-container">
+                <!-- Индикатор загрузки для основного видео -->
+                <div class="video-loading-indicator">
+                    <div class="video-loading-spinner"></div>
+                    <div class="video-loading-text">Загружаем видео...</div>
+                </div>
+                
+                <!-- Fallback изображение -->
+                <img class="video-fallback-image" src="${typeof UNIVERSAL_FALLBACK_IMAGE !== 'undefined' ? UNIVERSAL_FALLBACK_IMAGE : ''}" alt="${video.title}" style="display: none;">
+                
+                <!-- Основное видео -->
+                <video 
+                    id="videoElement"
+                    autoplay 
+                    muted 
+                    loop 
+                    playsinline
+                    style="width: 100%; min-height: 250px; max-height: 60vh; border: none !important; background-color: #000; object-fit: contain; display: none;">
+                    <source src="${video.video_url}" type="video/mp4">
+                    Ваш браузер не поддерживает видео.
+                </video>
+                
+                <!-- Overlay с ошибкой -->
+                <div class="video-error-overlay" style="display: none;">
+                    <div class="video-error-icon">⚠️</div>
+                    <div class="video-error-text">Видео временно недоступно</div>
+                    <div class="video-error-subtext">Попробуйте перезагрузить страницу</div>
+                </div>
+            </div>
         `;
         
         const videoElement = document.getElementById('videoElement');
+        const loadingIndicator = videoContainer.querySelector('.video-loading-indicator');
+        const fallbackImage = videoContainer.querySelector('.video-fallback-image');
+        const errorOverlay = videoContainer.querySelector('.video-error-overlay');
+        
         if (videoElement) {
-            // Добавляем обработчики событий для видео
+            // Обработчик успешной загрузки видео
+            videoElement.addEventListener('loadeddata', function() {
+                console.log('Основное видео загружено успешно');
+                loadingIndicator.style.display = 'none';
+                fallbackImage.style.display = 'none';
+                videoElement.style.display = 'block';
+            });
+            
+            // Обработчик клика для показа/скрытия контролов
             videoElement.addEventListener('click', function() {
                 this.controls = !this.controls;
                 
@@ -187,8 +218,24 @@ function displayVideo(video) {
                 }
             });
             
+            // Обработчик ошибки загрузки видео
             videoElement.addEventListener('error', function(e) {
-                showError('Не удалось загрузить видео. Пожалуйста, попробуйте позже.');
+                console.error('Ошибка загрузки основного видео');
+                loadingIndicator.style.display = 'none';
+                fallbackImage.style.display = 'block';
+                errorOverlay.style.display = 'flex';
+            });
+            
+            // Обработчик загрузки fallback изображения
+            fallbackImage.addEventListener('load', function() {
+                console.log('Fallback изображение основного видео загружено');
+            });
+            
+            // Обработчик ошибки fallback изображения
+            fallbackImage.addEventListener('error', function() {
+                console.error('Ошибка загрузки fallback изображения основного видео');
+                loadingIndicator.style.display = 'none';
+                errorOverlay.style.display = 'flex';
             });
         }
     }

@@ -57,6 +57,78 @@ body {
 
 /* Старые стили для .video-info убраны - теперь используем .video-preview .video-info */
 
+/* Стили для индикатора загрузки */
+.loading-indicator {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    z-index: 20;
+    color: #ffffff;
+}
+
+.loading-spinner {
+    width: 32px;
+    height: 32px;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: #ff0000;
+    animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.loading-text {
+    font-size: 12px;
+    font-weight: 500;
+    text-shadow: 0 0 4px rgba(0, 0, 0, 0.8);
+}
+
+/* Стили для overlay с ошибкой */
+.error-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    z-index: 25;
+    border-radius: 12px;
+}
+
+.error-icon {
+    font-size: 24px;
+    opacity: 0.8;
+}
+
+.error-text {
+    font-size: 12px;
+    color: #ffffff;
+    font-weight: 500;
+    text-align: center;
+    text-shadow: 0 0 4px rgba(0, 0, 0, 0.8);
+}
+
+/* Стили для fallback изображения */
+.fallback-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 12px;
+    opacity: 0.9;
+}
+
 /* Стили для отображения длительности видео на превью */
 .video-preview .video-duration {
     position: absolute;
@@ -395,6 +467,88 @@ video {
     background-color: #000;
     border: none !important;
     cursor: pointer;
+}
+
+/* Стили для fallback контейнера основного видео */
+.video-fallback-container {
+    position: relative;
+    width: 100%;
+    min-height: 250px;
+    max-height: 60vh;
+    background-color: #000;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.video-loading-indicator {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    z-index: 20;
+    color: #ffffff;
+}
+
+.video-loading-spinner {
+    width: 48px;
+    height: 48px;
+    border: 4px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: #ff0000;
+    animation: spin 1s ease-in-out infinite;
+}
+
+.video-loading-text {
+    font-size: 14px;
+    font-weight: 500;
+    text-shadow: 0 0 4px rgba(0, 0, 0, 0.8);
+}
+
+.video-fallback-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0.8;
+}
+
+.video-error-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.8);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    z-index: 25;
+    border-radius: 8px;
+}
+
+.video-error-icon {
+    font-size: 48px;
+    opacity: 0.8;
+}
+
+.video-error-text {
+    font-size: 16px;
+    color: #ffffff;
+    font-weight: 600;
+    text-align: center;
+    text-shadow: 0 0 4px rgba(0, 0, 0, 0.8);
+}
+
+.video-error-subtext {
+    font-size: 12px;
+    color: #cccccc;
+    text-align: center;
+    opacity: 0.8;
 }
 
 /* Одинаковые стили для кнопок навигации "Назад", "Предыдущее" и "Следующее" */

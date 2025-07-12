@@ -46,10 +46,26 @@ function createVideoPreview(video) {
     const previewTime = video.preview_time || 0.1; // По умолчанию 0.1 секунда
     previewElement.innerHTML = `
         <div class="video-container">
-            <video class="preview-video" preload="metadata" muted>
+            <!-- Индикатор загрузки -->
+            <div class="loading-indicator">
+                <div class="loading-spinner"></div>
+                <div class="loading-text">Загрузка...</div>
+            </div>
+            
+            <!-- Fallback изображение (показывается только при ошибке) -->
+            <img class="preview-image fallback-image" src="${typeof UNIVERSAL_FALLBACK_IMAGE !== 'undefined' ? UNIVERSAL_FALLBACK_IMAGE : ''}" alt="${video.title}" style="display: none;">
+            
+            <!-- Видео превью (скрыто до загрузки) -->
+            <video class="preview-video" preload="metadata" muted style="display: none;">
                 <source src="${video.video_url}#t=${previewTime}" type="video/mp4">
-                <img class="preview-image" src="${video.preview_url}" alt="${video.title}">
             </video>
+            
+            <!-- Overlay с информацией об ошибке -->
+            <div class="error-overlay" style="display: none;">
+                <div class="error-icon">⚠️</div>
+                <div class="error-text">Видео недоступно</div>
+            </div>
+            
             <div class="video-duration" style="display: none;">0:00</div>
             ${newBadge}
             <div class="likes-container">
@@ -61,14 +77,24 @@ function createVideoPreview(video) {
         </div>
     `;
     
-    // Получаем элементы для работы с длительностью
+    // Получаем элементы для работы с превью
     const videoElement = previewElement.querySelector('.preview-video');
     const durationElement = previewElement.querySelector('.video-duration');
+    const loadingIndicator = previewElement.querySelector('.loading-indicator');
+    const fallbackImage = previewElement.querySelector('.fallback-image');
+    const errorOverlay = previewElement.querySelector('.error-overlay');
     
-
-    
-    // Обработчик для получения длительности видео
+    // Обработчик успешной загрузки видео
     videoElement.addEventListener('loadedmetadata', function() {
+        console.log(`Видео ${video.id} загружено успешно`);
+        
+        // Скрываем индикатор загрузки
+        loadingIndicator.style.display = 'none';
+        
+        // Показываем видео (fallback остается скрытым)
+        videoElement.style.display = 'block';
+        
+        // Устанавливаем длительность
         const duration = Math.floor(videoElement.duration);
         const minutes = Math.floor(duration / 60);
         const seconds = duration % 60;
@@ -82,13 +108,40 @@ function createVideoPreview(video) {
     
     // Обработчик ошибки загрузки видео
     videoElement.addEventListener('error', function() {
-        console.error(`Ошибка загрузки видео ${video.id}`);
-        // Показываем fallback изображение
-        const imgElement = previewElement.querySelector('.preview-image');
-        if (imgElement) {
-            imgElement.style.display = 'block';
-        }
+        console.error(`Ошибка загрузки видео ${video.id} - показываем fallback`);
+        
+        // Скрываем индикатор загрузки
+        loadingIndicator.style.display = 'none';
+        
+        // Показываем overlay с ошибкой поверх fallback изображения
+        errorOverlay.style.display = 'flex';
+        
+        // Fallback изображение остается видимым
+        fallbackImage.style.display = 'block';
     });
+    
+    // Обработчик загрузки fallback изображения
+    fallbackImage.addEventListener('load', function() {
+        console.log(`Fallback изображение ${video.id} загружено`);
+        // Fallback изображение загружено, но показываем его только при ошибке видео
+    });
+    
+    // Обработчик ошибки загрузки fallback изображения
+    fallbackImage.addEventListener('error', function() {
+        console.error(`Ошибка загрузки fallback изображения ${video.id}`);
+        loadingIndicator.style.display = 'none';
+        errorOverlay.style.display = 'flex';
+    });
+    
+    // Таймаут для видео, которые долго загружаются (10 секунд)
+    setTimeout(() => {
+        if (videoElement.style.display === 'none' && loadingIndicator.style.display !== 'none') {
+            console.warn(`Видео ${video.id} не загрузилось за 10 секунд, показываем fallback`);
+            loadingIndicator.style.display = 'none';
+            fallbackImage.style.display = 'block';
+            errorOverlay.style.display = 'flex';
+        }
+    }, 10000);
     
     // Добавляем обработчик клика для перехода к странице просмотра видео
     previewElement.addEventListener('click', () => {

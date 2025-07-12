@@ -1,8 +1,15 @@
+// Универсальное fallback изображение для всех видео
+const UNIVERSAL_FALLBACK_IMAGE = "https://i.ibb.co/bMy6p7zV/20250712-1125-simple-compose-01jzyvrr00fmd9nx0y3x5yb2n0.png";
+
+// Функция для получения универсального fallback изображения
+function getUniversalFallbackImage() {
+    return UNIVERSAL_FALLBACK_IMAGE;
+}
+
 // Данные о видео шаблонах
 const videoData = [
   {
     "id": "video1",
-    "preview_url": "https://i.ibb.co/mC4Lx2zT/le-N3-Sl-Cg16-U.jpg",
     "video_url": "https://res.cloudinary.com/dg9ievxml/video/upload/v1742256575/lwcehpdoflwsdaabp1ea.mp4",
     "title": "Номер 331",
     "duration": 10, // Длительность в секундах
@@ -12,7 +19,6 @@ const videoData = [
   },
   {
     "id": "video2",
-    "preview_url": "https://i.ibb.co/6RwzDzyH/photo-2025-03-01-04-59-22.jpg",
     "video_url": "https://res.cloudinary.com/dg9ievxml/video/upload/v1742259893/ff6e3e0b_qu3lha.mp4",
     "title": "Номер 332",
     "duration": 18, // Длительность в секундах
@@ -22,7 +28,6 @@ const videoData = [
   },
   {
     "id": "video3",
-    "preview_url": "https://i.ibb.co/4w8ng4SH/photo-2025-01-09-01-48-05.jpg",
     "video_url": "https://res.cloudinary.com/dg9ievxml/video/upload/v1742260073/IMG_4069_ybfkag.mp4",
     "title": "Номер 333",
     "duration": 185, // Длительность в секундах
@@ -32,7 +37,6 @@ const videoData = [
   },
   {
     "id": "video4",
-    "preview_url": "https://i.ibb.co/84sXfkKL/5224733158040264968-1.jpg",
     "video_url": "https://res.cloudinary.com/dg9ievxml/video/upload/v1742260079/%D0%B4%D0%BD%D0%BE_2_lb5rsu.mp4",
     "title": "Номер 334",
     "duration": 25, // Длительность в секундах
@@ -65,8 +69,8 @@ const categories = {
     icon: "👩"
   },
   threesome: {
-    name: "МЖМ+",
-    icon: "🧍🧍‍♀️🧍"
+    name: "МЖМ",
+    icon: "🎊"
   },
   oral: {
     name: "Минет",
@@ -173,7 +177,7 @@ async function toggleVideoFavorite(videoId) {
     await saveFavoritesToCloud();
     console.log('Данные сохранены успешно');
   } catch (error) {
-    console.error('Ошибка сохранения:', error);
+    console.error('Ошибка сохранения избранного:', error);
   }
   
   const newStatus = !isFavorite;
@@ -190,17 +194,15 @@ async function saveFavoritesToCloud() {
       const favoritesData = JSON.stringify(favoriteVideosCache);
       window.Telegram.WebApp.CloudStorage.setItem('favorites', favoritesData, (error) => {
         if (error) {
-          console.error('Ошибка сохранения избранного:', error);
+          console.error('Ошибка сохранения избранного в Cloud Storage:', error);
           reject(error);
         } else {
-          console.log('Избранное сохранено в Cloud Storage');
           resolve();
         }
       });
     } else {
       // Fallback для локальной разработки
       localStorage.setItem('favorites', JSON.stringify(favoriteVideosCache));
-      console.log('Избранное сохранено в localStorage (dev mode)');
       resolve();
     }
   });
@@ -208,21 +210,15 @@ async function saveFavoritesToCloud() {
 
 // Функция для загрузки избранного из Cloud Storage
 async function loadFavoritesFromCloud() {
-  console.log('=== ЗАГРУЗКА ИЗБРАННОГО ===');
-  console.log('Telegram WebApp доступен:', !!(window.Telegram && window.Telegram.WebApp));
-  console.log('Cloud Storage доступен:', !!(window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.CloudStorage));
-  
   return new Promise((resolve) => {
     if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.CloudStorage) {
-      console.log('Используем Telegram Cloud Storage');
       window.Telegram.WebApp.CloudStorage.getItem('favorites', (error, data) => {
         if (error) {
-          console.error('Ошибка загрузки избранного:', error);
+          console.error('Ошибка загрузки избранного из Cloud Storage:', error);
           favoriteVideosCache = [];
         } else {
           try {
             favoriteVideosCache = data ? JSON.parse(data) : [];
-            console.log('Избранное загружено из Cloud Storage:', favoriteVideosCache);
           } catch (e) {
             console.error('Ошибка парсинга избранного:', e);
             favoriteVideosCache = [];
@@ -232,12 +228,9 @@ async function loadFavoritesFromCloud() {
       });
     } else {
       // Fallback для локальной разработки
-      console.log('Используем localStorage (dev mode)');
       try {
         const data = localStorage.getItem('favorites');
-        console.log('Данные из localStorage:', data);
         favoriteVideosCache = data ? JSON.parse(data) : [];
-        console.log('Избранное загружено из localStorage (dev mode):', favoriteVideosCache);
       } catch (e) {
         console.error('Ошибка загрузки избранного из localStorage:', e);
         favoriteVideosCache = [];
@@ -249,12 +242,8 @@ async function loadFavoritesFromCloud() {
 
 // Инициализация избранного при загрузке страницы
 document.addEventListener('DOMContentLoaded', async () => {
-  console.log('=== ИНИЦИАЛИЗАЦИЯ СИСТЕМЫ ИЗБРАННОГО И ЛАЙКОВ ===');
   await loadFavoritesFromCloud();
   loadUserLikes(); // Загружаем лайки пользователя
-  console.log('Система избранного и лайков инициализирована');
-  console.log('Текущее избранное:', favoriteVideosCache);
-  console.log('Текущие лайки пользователя:', userLikedVideos);
 });
 
 // === СИСТЕМА ЛАЙКОВ ===
@@ -299,7 +288,6 @@ async function toggleVideoLike(videoId) {
   // В будущем здесь будет отправка на сервер
   // await sendLikeToServer(videoId, !isLiked);
   
-  console.log(`Видео ${videoId} ${isLiked ? 'убран лайк' : 'лайкнуто'}, теперь лайков: ${video.likes}`);
   return !isLiked; // Возвращаем новый статус
 }
 
@@ -308,7 +296,6 @@ function loadUserLikes() {
   try {
     const data = localStorage.getItem('userLikes');
     userLikedVideos = data ? JSON.parse(data) : [];
-    console.log('Лайки пользователя загружены:', userLikedVideos);
   } catch (e) {
     console.error('Ошибка загрузки лайков:', e);
     userLikedVideos = [];
@@ -319,7 +306,6 @@ function loadUserLikes() {
 function saveUserLikes() {
   try {
     localStorage.setItem('userLikes', JSON.stringify(userLikedVideos));
-    console.log('Лайки пользователя сохранены');
   } catch (e) {
     console.error('Ошибка сохранения лайков:', e);
   }
@@ -402,7 +388,7 @@ window.checkSystemStatus = function() {
 "long"        - Длинные
 "solo_female" - Одна (👩)
 "couple"      - М+Ж (👫)
-"threesome"   - МЖМ+ (🧍🧍‍♀️🧍)
+"threesome"   - МЖМ (🎊)
 "oral"        - Минет (🎺)
 "fetish"      - Фетиши (🌶)
 
@@ -419,7 +405,6 @@ window.checkSystemStatus = function() {
 Шаблон для нового видео:
 {
   "id": "video_NEW_ID",
-  "preview_url": "FALLBACK_IMAGE_URL", // Показывается если видео не загрузится
   "video_url": "VIDEO_URL",
   "title": "НАЗВАНИЕ",
   "duration": 30, // Длительность в секундах (1 секунда = 50 токенов)
@@ -429,7 +414,8 @@ window.checkSystemStatus = function() {
 }
 
 ВАЖНО: 
-- preview_url теперь только для fallback, основное превью берется из видео
+- УНИВЕРСАЛЬНЫЙ FALLBACK: Используется одно изображение для всех видео (UNIVERSAL_FALLBACK_IMAGE)
+- preview_url УБРАНО - больше не нужно, используется только универсальный fallback
 - preview_time определяет какой кадр показывать в превью
 - duration - длительность в секундах, автоматически рассчитывается в токены (1 сек = 50 токенов)
 - Можно добавлять видео в несколько категорий одновременно
@@ -437,4 +423,10 @@ window.checkSystemStatus = function() {
 - Данные избранного сохраняются в Telegram Cloud Storage
 - Лайки показывают популярность видео для всех пользователей
 - Лайки пользователя сохраняются в localStorage (в будущем - на сервере)
+
+СИСТЕМА FALLBACK:
+- Если видео не загрузится, показывается универсальное изображение
+- Универсальный fallback: https://i.ibb.co/bMy6p7zV/20250712-1125-simple-compose-01jzyvrr00fmd9nx0y3x5yb2n0.png
+- Функция getUniversalFallbackImage() возвращает URL универсального fallback
+- Можно изменить UNIVERSAL_FALLBACK_IMAGE в начале файла для смены изображения
 */ 
