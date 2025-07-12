@@ -538,14 +538,14 @@ video {
 .video-header {
     display: flex;
     justify-content: space-between;
-    align-items: center;
-    margin-bottom: 15px;
+    align-items: flex-start;
+    margin-bottom: 5px;
 }
 
 .video-actions {
     display: flex;
-    align-items: center;
-    gap: 20px;
+    align-items: flex-start;
+    gap: 10px;
 }
 
 .favorite-button-video {
@@ -582,7 +582,7 @@ video {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 8px;
+    gap: 2px;
 }
 
 .like-button-video {
@@ -592,9 +592,9 @@ video {
     padding: 0;
     border-radius: 50%;
     transition: all 0.3s ease;
-    font-size: 100px !important;
-    width: 120px;
-    height: 120px;
+    font-size: 68px !important;
+    width: 82px;
+    height: 82px;
     display: flex;
     align-items: center;
     justify-content: center;

@@ -411,11 +411,11 @@ function setupFavoriteButton(video) {
         console.log('Видео в избранном:', isFavorite);
         
         if (isFavorite) {
-            favoriteIcon.textContent = '★';
+            favoriteIcon.textContent = '⭐';
             favoriteButton.classList.add('favorite-active');
             console.log('Установлена заполненная звезда');
         } else {
-            favoriteIcon.textContent = '☆';
+            favoriteIcon.textContent = '★';
             favoriteButton.classList.remove('favorite-active');
             console.log('Установлена пустая звезда');
         }
@@ -474,10 +474,10 @@ function setupLikeButton(video) {
         const likes = (typeof getVideoLikes === 'function') ? getVideoLikes(video.id) : (video.likes || 0);
         
         if (isLiked) {
-            likeIcon.textContent = '♥';
+            likeIcon.textContent = '❤️';
             likeButton.classList.add('like-active');
         } else {
-            likeIcon.textContent = '♡';
+            likeIcon.textContent = '🤍';
             likeButton.classList.remove('like-active');
         }
         
