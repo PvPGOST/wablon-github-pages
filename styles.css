@@ -247,6 +247,15 @@ body {
     grid-column: 1 / -1;
 }
 
+.coming-soon {
+    display: block;
+    margin-top: 10px;
+    font-size: 14px;
+    color: #ff6b6b;
+    font-style: italic;
+    opacity: 0.8;
+}
+
 /* Лайки теперь видимы */
 
 /* Стили для страницы просмотра видео */

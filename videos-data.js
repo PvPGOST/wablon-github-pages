@@ -26,7 +26,7 @@ const videoData = [
     "video_url": "https://res.cloudinary.com/dg9ievxml/video/upload/v1742260073/IMG_4069_ybfkag.mp4",
     "title": "Номер 333",
     "duration": 185, // Длительность в секундах
-    "categories": ["long", "oral", "solo_female"], // Только длинное, популярность определяется автоматически
+    "categories": ["long", "oral", "solo_female", "fetish"], // Только длинное, популярность определяется автоматически
     "preview_time": 3.2,
     "likes": 15624 // Количество лайков
   },
@@ -56,21 +56,29 @@ const categories = {
     name: "Все",
     icon: "📱"
   },
-  solo_female: {
-    name: "Одна",
-    icon: "👩🏻‍🦰"
-  },
   couple: {
     name: "М+Ж",
     icon: "👫"
   },
+  solo_female: {
+    name: "Одна",
+    icon: "👩"
+  },
+  threesome: {
+    name: "МЖМ+",
+    icon: "🧍🧍‍♀️🧍"
+  },
   oral: {
     name: "Минет",
-    icon: "🪈"
+    icon: "🎺"
+  },
+  fetish: {
+    name: "Фетиши",
+    icon: "🌶"
   },
   long: {
     name: "Длинные",
-    icon: "📖"
+    icon: "📏"
   },
   short: {
     name: "Короткие",
@@ -394,7 +402,9 @@ window.checkSystemStatus = function() {
 "long"        - Длинные
 "solo_female" - Одна (👩)
 "couple"      - М+Ж (👫)
+"threesome"   - МЖМ+ (🧍🧍‍♀️🧍)
 "oral"        - Минет (🎺)
+"fetish"      - Фетиши (🌶)
 
 СПЕЦИАЛЬНЫЕ КАТЕГОРИИ (НЕ ДОБАВЛЯЙТЕ В videos-data.js):
 "favorites" - Избранное (автоматически управляется системой)

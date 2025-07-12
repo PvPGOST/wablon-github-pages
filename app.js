@@ -233,7 +233,7 @@ async function loadVideoGrid() {
             if (currentCategory === 'favorites') {
                 videoGridElement.innerHTML = '<p class="no-videos">У вас пока нет избранных видео.<br>Добавьте видео в избранное, нажав на ⭐</p>';
             } else {
-                videoGridElement.innerHTML = '<p class="no-videos">В этой категории пока нет видео</p>';
+                videoGridElement.innerHTML = '<p class="no-videos">🔥 Скоро тут будет горячо! 🔥<br><span class="coming-soon">Новые видео уже готовятся...</span></p>';
             }
             return;
         }
