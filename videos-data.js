@@ -10,7 +10,7 @@ function getUniversalFallbackImage() {
 const videoData = [
   {
     "id": "video1",
-    "video_url": "https://raw.githubusercontent.com/PvPGOST/wablon-github-pages/master/videos/video_templates/template_1.mp4",
+    "video_url": "https://res.cloudinary.com/dg9ievxml/video/upload/v1742256575/lwcehpdoflwsdaabp1ea.mp4",
     "title": "Номер 331",
     "displayName": "Элегантный шаблон №1", // Красивое название для пользователя
     "duration": 10, // Длительность в секундах
@@ -20,7 +20,7 @@ const videoData = [
   },
   {
     "id": "video2",
-    "video_url": "https://raw.githubusercontent.com/PvPGOST/wablon-github-pages/master/videos/video_templates/template_2.mp4",
+    "video_url": "https://res.cloudinary.com/dg9ievxml/video/upload/v1742259893/ff6e3e0b_qu3lha.mp4",
     "title": "Номер 332",
     "displayName": "Страстный шаблон №2", // Красивое название для пользователя
     "duration": 18, // Длительность в секундах
@@ -30,7 +30,7 @@ const videoData = [
   },
   {
     "id": "video3",
-    "video_url": "https://raw.githubusercontent.com/PvPGOST/wablon-github-pages/master/videos/video_templates/template_3.mp4",
+    "video_url": "https://res.cloudinary.com/dg9ievxml/video/upload/v1742260073/IMG_4069_ybfkag.mp4",
     "title": "Номер 333",
     "displayName": "Премиум шаблон №3", // Красивое название для пользователя
     "duration": 185, // Длительность в секундах
@@ -40,7 +40,7 @@ const videoData = [
   },
   {
     "id": "video4",
-    "video_url": "https://raw.githubusercontent.com/PvPGOST/wablon-github-pages/master/videos/video_templates/template_4.mp4",
+    "video_url": "https://res.cloudinary.com/dg9ievxml/video/upload/v1742260079/%D0%B4%D0%BD%D0%BE_2_lb5rsu.mp4",
     "title": "Номер 334",
     "displayName": "Интимный шаблон №4", // Красивое название для пользователя
     "duration": 25, // Длительность в секундах
