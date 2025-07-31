@@ -1,0 +1,16 @@
+{
+  "name": "tg-mini-app",
+  "version": "1.0.0",
+  "description": "Telegram Mini App для выбора шаблонов видео",
+  "main": "app.js",
+  "scripts": {
+    "dev": "npx http-server -p 3000 -o",
+    "start": "npx http-server -p 3000"
+  },
+  "keywords": ["telegram", "mini-app", "video", "templates"],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@stagewise/toolbar": "latest"
+  }
+} 
