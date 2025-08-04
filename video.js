@@ -316,13 +316,29 @@ function setupConfirmButton(video) {
             };
             
             // Отправляем данные в Telegram
+            console.log('=== ОТПРАВКА ДАННЫХ В TELEGRAM ===');
+            console.log('window.Telegram доступен:', !!window.Telegram);
+            console.log('window.Telegram.WebApp доступен:', !!(window.Telegram && window.Telegram.WebApp));
+            console.log('Данные для отправки:', dataToSend);
+            
             if (window.Telegram && window.Telegram.WebApp) {
                 localStorage.setItem('lastSentData', JSON.stringify(dataToSend));
                 
                 const jsonData = JSON.stringify(dataToSend);
+                console.log('JSON для отправки:', jsonData);
                 
                 // Отправляем данные
+                console.log('Вызываем sendData...');
                 window.Telegram.WebApp.sendData(jsonData);
+                console.log('sendData вызван успешно');
+                
+                // Принудительно закрываем Mini App через 2 секунды
+                setTimeout(() => {
+                    console.log('Закрываем Mini App...');
+                    if (window.Telegram.WebApp.close) {
+                        window.Telegram.WebApp.close();
+                    }
+                }, 2000);
                 
                 // Обновляем уведомление
                 notificationElement.textContent = 'Шаблон отправлен на обработку!';

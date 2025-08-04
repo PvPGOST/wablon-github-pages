@@ -56,8 +56,8 @@
         
                  // Тест 3: Проверяем GitHub URLs
          videoData.forEach((video, index) => {
-             if (video.video_url.includes('raw.githubusercontent.com/PvPGOST/wablon-github-pages/master')) {
-                 addResult(`✅ video${index + 1}: GitHub URL корректный (ветка master)`, 'success');
+             if (video.video_url.includes('raw.githubusercontent.com/PvPGOST/wablon-github-pages/main')) {
+                 addResult(`✅ video${index + 1}: GitHub URL корректный (ветка main)`, 'success');
              } else {
                  addResult(`❌ video${index + 1}: неправильный URL: ${video.video_url}`, 'error');
              }
