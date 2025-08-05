@@ -315,7 +315,7 @@ function setupConfirmButton(video) {
                 'displayName': video.displayName || video.title // Используем displayName или fallback на title
             };
             
-            // Отправляем данные в Telegram
+            // Отправляем данные в Telegram (правильный способ для Inline кнопок)
             console.log('=== ОТПРАВКА ДАННЫХ В TELEGRAM ===');
             console.log('window.Telegram доступен:', !!window.Telegram);
             console.log('window.Telegram.WebApp доступен:', !!(window.Telegram && window.Telegram.WebApp));
@@ -327,18 +327,48 @@ function setupConfirmButton(video) {
                 const jsonData = JSON.stringify(dataToSend);
                 console.log('JSON для отправки:', jsonData);
                 
-                // Отправляем данные
-                console.log('Вызываем sendData...');
-                window.Telegram.WebApp.sendData(jsonData);
-                console.log('sendData вызван успешно');
+                // Проверяем, есть ли query_id (для Inline Web Apps)
+                const initData = window.Telegram.WebApp.initData;
+                const initDataUnsafe = window.Telegram.WebApp.initDataUnsafe;
                 
-                // Принудительно закрываем Mini App через 2 секунды
+                console.log('initData:', initData);
+                console.log('initDataUnsafe:', initDataUnsafe);
+                console.log('query_id:', initDataUnsafe?.query_id);
+                
+                if (initDataUnsafe?.query_id) {
+                    // Это Inline Web App - используем answerWebAppQuery через сервер
+                    console.log('🔄 Отправляем данные через сервер (Inline режим)...');
+                    
+                    const payloadForServer = {
+                        query_id: initDataUnsafe.query_id,
+                        template_data: dataToSend
+                    };
+                    
+                    // Здесь должен быть запрос на ваш сервер
+                    // Пока что просто показываем, что получили query_id
+                    console.log('🚀 Query ID получен:', initDataUnsafe.query_id);
+                    console.log('📦 Payload для сервера:', payloadForServer);
+                    
+                    // В реальности здесь был бы fetch() на ваш сервер
+                    // fetch('/api/web-app-data', { method: 'POST', body: JSON.stringify(payloadForServer) });
+                    
+                    // Показываем сообщение пользователю
+                    window.Telegram.WebApp.showAlert(`Шаблон "${video.displayName || video.title}" выбран!\n\nQuery ID: ${initDataUnsafe.query_id}`);
+                    
+                } else {
+                    // Это обычный Web App (Reply кнопка) - используем sendData
+                    console.log('📤 Отправляем данные через sendData (Reply режим)...');
+                    window.Telegram.WebApp.sendData(jsonData);
+                    console.log('sendData вызван успешно');
+                }
+                
+                // Принудительно закрываем Mini App через 3 секунды
                 setTimeout(() => {
                     console.log('Закрываем Mini App...');
                     if (window.Telegram.WebApp.close) {
                         window.Telegram.WebApp.close();
                     }
-                }, 2000);
+                }, 3000);
                 
                 // Обновляем уведомление
                 notificationElement.textContent = 'Шаблон отправлен на обработку!';

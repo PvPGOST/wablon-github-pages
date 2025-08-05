@@ -34,7 +34,7 @@ async def start_command(message: types.Message):
     """Обработчик команды /start"""
     user = message.from_user
     
-    # Создаем клавиатуру с двумя кнопками
+    # Создаем Inline клавиатуру (как вы хотели)
     builder = InlineKeyboardBuilder()
     builder.add(
         InlineKeyboardButton(
@@ -67,7 +67,7 @@ async def start_command(message: types.Message):
 
 @dp.callback_query(F.data == "help")
 async def help_callback(callback: types.CallbackQuery):
-    """Обработчик кнопки ПОМОЩЬ"""
+    """Обработчик Inline кнопки ПОМОЩЬ"""
     await callback.answer()  # Убираем "часики" с кнопки
     
     await callback.message.edit_text(
@@ -134,10 +134,72 @@ async def handle_web_app_data(message: types.Message):
             f"❌ Произошла ошибка: {str(e)}"
         )
 
-@dp.callback_query()
-async def handle_other_callbacks(callback: types.CallbackQuery):
-    """Обработчик остальных callback запросов"""
-    await callback.answer("Неизвестная команда")
+@dp.inline_query()
+async def handle_inline_query(inline_query: types.InlineQuery):
+    """Обработчик для inline запросов от Web App (если нужно)"""
+    # Этот обработчик может понадобиться в некоторых случаях
+    pass
+
+# Обработчик Web App Query (это ключевой обработчик для Inline Web Apps!)
+async def handle_web_app_query(query_id: str, data: dict):
+    """Обрабатываем данные от Inline Web App через answerWebAppQuery"""
+    try:
+        print("=" * 50)
+        print("🔥 ПОЛУЧЕНЫ ДАННЫЕ ОТ INLINE WEB APP:")
+        print("=" * 50)
+        print(f"Query ID: {query_id}")
+        print(f"Data: {data}")
+        
+        video_path = data.get('videoPath', 'Не указан')
+        display_name = data.get('displayName', 'Не указано')
+        
+        print(f"Video Path: {video_path}")
+        print(f"Display Name: {display_name}")
+        print("=" * 50)
+        
+        # Создаем результат для отправки в чат
+        from aiogram.types import InlineQueryResultArticle, InputTextMessageContent
+        
+        result = InlineQueryResultArticle(
+            id="selected_template",
+            title="Выбранный шаблон",
+            description=f"Шаблон: {display_name}",
+            input_message_content=InputTextMessageContent(
+                message_text=f"✅ Выбран шаблон: {display_name}\n📁 Путь: {video_path}\n\n🔧 Начинаю обработку..."
+            )
+        )
+        
+        # Отправляем результат через answerWebAppQuery
+        await bot.answer_web_app_query(
+            web_app_query_id=query_id,
+            result=result
+        )
+        
+        print("✅ answerWebAppQuery выполнен успешно")
+        
+    except Exception as e:
+        print(f"❌ Ошибка handle_web_app_query: {e}")
+
+# Добавляем endpoint для получения данных от Mini App
+from aiohttp import web, ClientSession
+import json
+
+async def web_app_data_endpoint(request):
+    """HTTP endpoint для получения данных от Mini App"""
+    try:
+        data = await request.json()
+        query_id = data.get('query_id')
+        template_data = data.get('template_data', {})
+        
+        if query_id:
+            await handle_web_app_query(query_id, template_data)
+            return web.Response(text="OK")
+        else:
+            return web.Response(text="Missing query_id", status=400)
+            
+    except Exception as e:
+        print(f"❌ Ошибка web_app_data_endpoint: {e}")
+        return web.Response(text=str(e), status=500)
 
 async def main():
     """Запуск бота"""
