@@ -349,11 +349,62 @@ function setupConfirmButton(video) {
                     console.log('🚀 Query ID получен:', initDataUnsafe.query_id);
                     console.log('📦 Payload для сервера:', payloadForServer);
                     
-                    // В реальности здесь был бы fetch() на ваш сервер
-                    // fetch('/api/web-app-data', { method: 'POST', body: JSON.stringify(payloadForServer) });
-                    
-                    // Показываем сообщение пользователю
-                    window.Telegram.WebApp.showAlert(`Шаблон "${video.displayName || video.title}" выбран!\n\nQuery ID: ${initDataUnsafe.query_id}`);
+                    // РЕАЛЬНАЯ ОТПРАВКА: отправляем данные на сервер через fetch
+                    try {
+                        console.log('🎯 Отправляем данные на сервер...');
+                        
+                        // URL вашего сервера (замените на реальный при использовании ngrok)
+                        const serverUrl = 'http://localhost:8000/api/web-app-data';
+                        
+                        // Отправляем данные на сервер
+                        fetch(serverUrl, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify(payloadForServer)
+                        })
+                        .then(response => {
+                            console.log('📡 Ответ сервера:', response.status);
+                            if (response.ok) {
+                                console.log('✅ Данные успешно отправлены на сервер!');
+                                window.Telegram.WebApp.showAlert('✅ Шаблон отправлен на обработку!');
+                            } else {
+                                throw new Error(`Server error: ${response.status}`);
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            console.log('📊 Ответ сервера:', data);
+                        })
+                        .catch(error => {
+                            console.error('❌ Ошибка отправки на сервер:', error);
+                            
+                            // Fallback - показываем данные в алерте
+                            const message = `⚠️ Сервер недоступен
+✅ Шаблон: ${video.displayName || video.title}
+📁 Путь: ${videoPath}
+🆔 Query ID: ${initDataUnsafe.query_id}
+
+💡 Запустите сервер: python simple_server.py`;
+                            
+                            window.Telegram.WebApp.showAlert(message);
+                        });
+                        
+                        // Логируем все данные для отладки
+                        console.log('=' * 50);
+                        console.log('📊 ДАННЫЕ ДЛЯ ОТПРАВКИ:');
+                        console.log('Query ID:', initDataUnsafe.query_id);
+                        console.log('Video Path:', videoPath);
+                        console.log('Display Name:', video.displayName || video.title);
+                        console.log('Server URL:', serverUrl);
+                        console.log('Payload:', payloadForServer);
+                        console.log('=' * 50);
+                        
+                    } catch (error) {
+                        console.error('❌ Критическая ошибка:', error);
+                        window.Telegram.WebApp.showAlert(`Критическая ошибка: ${error.message}`);
+                    }
                     
                 } else {
                     // Это обычный Web App (Reply кнопка) - используем sendData
