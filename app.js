@@ -23,9 +23,67 @@ if (isTelegramEnvironment) {
 let selectedVideoId = null;
 let currentCategory = 'all';
 
+// === СИСТЕМА КЕШИРОВАНИЯ ИЗОБРАЖЕНИЙ ===
+let loadedImagesCache = new Set();
+const CACHE_TTL = 12 * 60 * 60 * 1000; // 12 часов в миллисекундах
+
 // Функция для получения категории из URL хэша
 function getCategoryFromHash() {
     return 'all';
+}
+
+// === ФУНКЦИИ КЕШИРОВАНИЯ ИЗОБРАЖЕНИЙ ===
+
+// Функция для загрузки кеша изображений из localStorage
+function loadImageCache() {
+    try {
+        const cacheData = localStorage.getItem('videoImageCache');
+        if (cacheData) {
+            const { images, timestamp } = JSON.parse(cacheData);
+            
+            // Проверяем, не устарел ли кеш
+            if (Date.now() - timestamp < CACHE_TTL) {
+                loadedImagesCache = new Set(images);
+                console.log(`Загружен кеш изображений: ${loadedImagesCache.size} элементов`);
+                return;
+            } else {
+                console.log('Кеш изображений устарел, очищаем');
+            }
+        }
+    } catch (error) {
+        console.error('Ошибка при загрузке кеша изображений:', error);
+    }
+    
+    // Если кеш пустой или устарел, очищаем localStorage
+    localStorage.removeItem('videoImageCache');
+    loadedImagesCache = new Set();
+}
+
+// Функция для сохранения кеша изображений в localStorage
+function saveImageCache() {
+    try {
+        const cacheData = {
+            images: Array.from(loadedImagesCache),
+            timestamp: Date.now()
+        };
+        localStorage.setItem('videoImageCache', JSON.stringify(cacheData));
+    } catch (error) {
+        console.error('Ошибка при сохранении кеша изображений:', error);
+        // Если превышен лимит localStorage, очищаем старые данные
+        clearOldImageCache();
+    }
+}
+
+// Функция для очистки старого кеша при переполнении localStorage
+function clearOldImageCache() {
+    try {
+        // Очищаем кеш изображений
+        localStorage.removeItem('videoImageCache');
+        loadedImagesCache.clear();
+        console.log('Кеш изображений очищен из-за переполнения localStorage');
+    } catch (error) {
+        console.error('Ошибка при очистке кеша:', error);
+    }
 }
 window.botParams = {
     bot_id: null,
@@ -123,7 +181,7 @@ function createVideoPreview(video) {
                 color: #666;
                 font-size: 14px;
             ">
-                📱 Загрузится при прокрутке
+                <div class="loading-spinner"></div>
             </div>
             
             <!-- Статичное превью изображение (для ленивой загрузки) -->
@@ -148,6 +206,19 @@ function createVideoPreview(video) {
             </div>
         </div>
     `;
+    
+    // === ПРОВЕРКА КЕША ИЗОБРАЖЕНИЙ ===
+    const imageUrl = video.preview_image || '';
+    if (imageUrl && loadedImagesCache.has(imageUrl)) {
+        // Если изображение уже в кеше, показываем его сразу
+        const previewImage = previewElement.querySelector('.preview-image');
+        const placeholder = previewElement.querySelector('.preview-placeholder');
+        
+        previewImage.src = imageUrl;
+        previewImage.style.display = 'block';
+        placeholder.style.display = 'none';
+        previewImage.classList.remove('lazy-load'); // Убираем класс ленивой загрузки
+    }
     
     // Добавляем обработчик клика для перехода к странице просмотра видео
     previewElement.addEventListener('click', () => {
@@ -322,6 +393,9 @@ async function loadVideoGrid() {
             selectedVideoId = savedVideoId;
         }
     }
+    
+    // Обновляем ленивую загрузку для новых элементов
+    updateLazyLoading();
 }
 // === СИСТЕМА ЛЕНИВОЙ ЗАГРУЗКИ ===
 
@@ -354,6 +428,18 @@ function initLazyLoading() {
     // Наблюдаем за всеми превью элементами
     document.querySelectorAll('.video-preview').forEach(element => {
         lazyLoadObserver.observe(element);
+        element.setAttribute('data-observed', 'true'); // Помечаем как наблюдаемый
+    });
+}
+
+// Функция для обновления ленивой загрузки для новых элементов
+function updateLazyLoading() {
+    if (!lazyLoadObserver) return;
+    
+    // Находим только новые элементы, которые еще не наблюдаются
+    document.querySelectorAll('.video-preview:not([data-observed])').forEach(element => {
+        lazyLoadObserver.observe(element);
+        element.setAttribute('data-observed', 'true');
     });
 }
 
@@ -378,6 +464,14 @@ function loadPreviewImage(previewElement) {
         console.log(`Превью изображение загружено: ${previewImage.src}`);
         loadingIndicator.style.display = 'none';
         previewImage.style.display = 'block';
+        
+        // Добавляем изображение в кеш
+        try {
+            loadedImagesCache.add(previewImage.src);
+            saveImageCache();
+        } catch (error) {
+            console.error('Ошибка при добавлении в кеш:', error);
+        }
     }, { once: true });
     
     // Обработчик ошибки загрузки
@@ -393,6 +487,14 @@ function loadPreviewImage(previewElement) {
             console.warn(`Превью долго загружается: ${previewImage.dataset.src}`);
             loadingIndicator.style.display = 'none';
             errorOverlay.style.display = 'flex';
+            
+            // Убираем из кеша при таймауте
+            try {
+                loadedImagesCache.delete(previewImage.dataset.src);
+                saveImageCache();
+            } catch (error) {
+                console.error('Ошибка при удалении из кеша:', error);
+            }
         }
     }, 5000);
     
@@ -428,6 +530,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     saveBotParamsFromURL();
 
     try {
+        // Загружаем кеш изображений
+        loadImageCache();
         // Получаем категорию из URL хэша
         const hashCategory = getCategoryFromHash();
         if (hashCategory !== 'all') {
@@ -451,6 +555,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         
     } catch (error) {
         console.error('Ошибка при инициализации приложения:', error);
+        
+        // Загружаем кеш изображений даже при ошибке
+        loadImageCache();
         
         // Fallback - загружаем без избранного
         createCategoryButtons();
