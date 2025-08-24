@@ -16,8 +16,8 @@ const videoData = [
   },
   {
     "id": "video2",
-    "video_url": "/video/videos/video_templates/template_2.mp4",
-    "preview_image": "/video/videos/previews/template_2_preview.jpg", // Статичное превью
+    "video_url": "videos/video_templates/Template 2.mp4",
+    "preview_image": "videos/previews/template_2_preview.jpg", // Статичное превью
     "title": "Номер 332",
     "displayName": "Страстный шаблон №2", // Красивое название для пользователя
     "duration": 18, // Длительность в секундах
@@ -27,8 +27,8 @@ const videoData = [
   },
   {
     "id": "video3",
-    "video_url": "/video/videos/video_templates/template_3.mp4",
-    "preview_image": "/video/videos/previews/template_3_preview.jpg", // Статичное превью
+    "video_url": "videos/video_templates/template_3.mp4",
+    "preview_image": "videos/previews/template_3_preview.jpg", // Статичное превью
     "title": "Номер 333",
     "displayName": "Премиум шаблон №3", // Красивое название для пользователя
     "duration": 185, // Длительность в секундах
@@ -38,8 +38,8 @@ const videoData = [
   },
   {
     "id": "video4",
-    "video_url": "/video/videos/video_templates/template_4.mp4",
-    "preview_image": "/video/videos/previews/template_4_preview.jpg", // Статичное превью
+    "video_url": "videos/video_templates/template_4.mp4",
+    "preview_image": "videos/previews/template_4_preview.jpg", // Статичное превью
     "title": "Номер 334",
     "displayName": "Интимный шаблон №4", // Красивое название для пользователя
     "duration": 25, // Длительность в секундах
