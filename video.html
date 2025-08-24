@@ -3,49 +3,84 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Просмотр видео</title>
+    <title>Шаблоны видео</title>
     <link rel="stylesheet" href="styles.css?v=3.7">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="videos-data.js"></script>
 
-
+    <style>
+        /* Стили для заголовка */
+        .header {
+            font-size: 24px;
+            font-weight: 700;
+            text-align: center;
+            margin: 20px 0 30px 0;
+            color: #333;
+            background: none;
+            padding: 0;
+            border: none;
+            box-shadow: none;
+            border-radius: 0;
+        }
+        
+        /* Стили для категорий */
+        .categories {
+            display: flex;
+            gap: 10px;
+            padding: 15px;
+            background-color: #000000;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        .category-button {
+            background-color: #1a1a1a;
+            color: #ffffff;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            white-space: nowrap;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .category-button:hover {
+            background-color: #333333;
+        }
+        
+        .category-button.active {
+            background-color: #667eea;
+            color: white;
+        }
+        
+        .category-button .icon {
+            font-size: 16px;
+        }
+        
+        /* Убираем стили лайков */
+        .preview-likes-container {
+            display: none;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
-        <div class="navigation-bar">
-            <div id="backButton" class="back-button">Назад</div>
-            <!-- <div class="video-navigation">
-                <div id="prevButton" class="prev-button">◀ Пред.</div>
-                <div id="nextButton" class="next-button">След. ▶</div>
-            </div> -->
+        <h1 class="header">Выбирай</h1>
+        
+        <!-- Категории -->
+        <div class="categories" id="categories">
+            <!-- Категории будут добавлены динамически -->
         </div>
         
-        <div class="video-player-container">
-            <div id="videoContainer" class="video-player"></div>
-        </div>
-        
-        <div class="video-info">
-            <div class="video-header">
-                <div>
-                    <div id="videoTitle" class="video-number"></div>
-                    <div id="videoDescription" class="video-duration">Длительность видео</div>
-                </div>
-                <div class="video-actions">
-                    <button id="favoriteButton" class="favorite-button-video">
-                        <span class="favorite-icon">☆</span>
-                    </button>
-                    <div class="likes-container-video">
-                        <button id="likeButton" class="like-button-video">
-                            <span class="like-icon">🤍</span>
-                        </button>
-                    </div>
-                </div>
-            </div>
-            <button id="confirmButton" class="confirm-button">ВЫБРАТЬ ШАБЛОН</button>
+        <div id="videoGrid" class="video-grid">
+            <!-- Сюда будут загружены превью видео -->
         </div>
     </div>
-
     <script type="module" src="stagewise-init.js"></script>
-    <script src="video.js"></script>
+    <script src="app.js"></script>
 </body>
 </html> 
