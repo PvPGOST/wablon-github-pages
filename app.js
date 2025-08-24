@@ -25,11 +25,66 @@ let currentCategory = 'all';
 
 // Функция для получения категории из URL хэша
 function getCategoryFromHash() {
-    const hash = window.location.hash;
-    if (hash.startsWith('#category=')) {
-        return hash.replace('#category=', '');
-    }
     return 'all';
+}
+window.botParams = {
+    bot_id: null,
+    user_id: null,
+    message_id: null,
+    saved: false
+};
+// Function to save bot parameters from URL
+function saveBotParamsFromURL() {
+    const urlParams = new URLSearchParams(window.location.search);
+    
+    window.botParams.bot_id = urlParams.get('bot');
+    window.botParams.user_id = urlParams.get('user');
+    window.botParams.message_id = urlParams.get('message');
+    window.botParams.saved = true;
+    
+    console.log('=== BOT PARAMETERS SAVED ===');
+    console.log('Bot ID:', window.botParams.bot_id);
+    console.log('User ID:', window.botParams.user_id);
+    console.log('Message ID:', window.botParams.message_id);
+    console.log('=== END SAVE ===');
+    
+    // Also save to localStorage as backup
+    try {
+        localStorage.setItem('botParams', JSON.stringify(window.botParams));
+    } catch (e) {
+        console.warn('Could not save to localStorage:', e);
+    }
+    
+    return window.botParams;
+}
+
+function loadBotParams() {
+    // First try to get from global variable
+    if (window.botParams && window.botParams.saved) {
+        console.log('Loading bot params from global variable');
+        return window.botParams;
+    }
+    
+    // Fallback to localStorage
+    try {
+        const saved = localStorage.getItem('botParams');
+        if (saved) {
+            window.botParams = JSON.parse(saved);
+            console.log('Loading bot params from localStorage');
+            return window.botParams;
+        }
+    } catch (e) {
+        console.warn('Could not load from localStorage:', e);
+    }
+    
+    // If nothing found, return empty params
+    console.log('No bot params found');
+    return {
+        bot_id: null,
+        user_id: null,
+        message_id: null,
+        saved: false
+    };
 }
 
 // Функция для создания элементов превью видео
@@ -42,31 +97,48 @@ function createVideoPreview(video) {
     const hasNewCategory = video.categories && video.categories.includes('new');
     const newBadge = hasNewCategory ? '<div class="new-badge">NEW</div>' : '';
     
-    // Добавляем видео превью вместо картинки с указанным временем
-    const previewTime = video.preview_time || 0.1; // По умолчанию 0.1 секунда
+    // Форматируем длительность
+    const duration = video.duration || 0;
+    const minutes = Math.floor(duration / 60);
+    const seconds = duration % 60;
+    const formattedDuration = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+    
+    // Используем статичное превью вместо видео с ленивой загрузкой
     previewElement.innerHTML = `
         <div class="video-container">
             <!-- Индикатор загрузки -->
-            <div class="loading-indicator">
+            <div class="loading-indicator" style="display: none;">
                 <div class="loading-spinner"></div>
                 <div class="loading-text">Загрузка...</div>
             </div>
             
-            <!-- Fallback изображение (показывается только при ошибке) -->
-            <img class="preview-image fallback-image" src="${typeof UNIVERSAL_FALLBACK_IMAGE !== 'undefined' ? UNIVERSAL_FALLBACK_IMAGE : ''}" alt="${video.title}" style="display: none;">
-            
-            <!-- Видео превью (скрыто до загрузки) -->
-            <video class="preview-video" preload="metadata" muted style="display: none;">
-                <source src="${video.video_url}" type="video/mp4">
-            </video>
-            
-            <!-- Overlay с информацией об ошибке -->
-            <div class="error-overlay" style="display: none;">
-                <div class="error-icon">⚠️</div>
-                <div class="error-text">Видео недоступно</div>
+            <!-- Плейсхолдер до загрузки (для ленивой загрузки) -->
+            <div class="preview-placeholder" style="
+                width: 100%; 
+                height: 100%; 
+                background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: #666;
+                font-size: 14px;
+            ">
+                📱 Загрузится при прокрутке
             </div>
             
-            <div class="video-duration" style="display: none;">0:00</div>
+            <!-- Статичное превью изображение (для ленивой загрузки) -->
+            <img class="preview-image lazy-load" 
+                 data-src="${video.preview_image || ''}" 
+                 alt="${video.title}" 
+                 style="display: none;">
+            
+            <!-- Overlay с информацией об ошибке (только при ошибке превью) -->
+            <div class="error-overlay" style="display: none;">
+                <div class="error-icon">⚠️</div>
+                <div class="error-text">Превью недоступно</div>
+            </div>
+            
+            <div class="video-duration">${formattedDuration}</div>
             ${newBadge}
             <div class="likes-container">
                 <div class="like-display">
@@ -76,78 +148,6 @@ function createVideoPreview(video) {
             </div>
         </div>
     `;
-    
-    // Получаем элементы для работы с превью
-    const videoElement = previewElement.querySelector('.preview-video');
-    const durationElement = previewElement.querySelector('.video-duration');
-    const loadingIndicator = previewElement.querySelector('.loading-indicator');
-    const fallbackImage = previewElement.querySelector('.fallback-image');
-    const errorOverlay = previewElement.querySelector('.error-overlay');
-    
-    // Обработчик успешной загрузки метаданных видео
-    videoElement.addEventListener('loadedmetadata', function() {
-        console.log(`Метаданные видео ${video.id} загружены`);
-        
-        // Устанавливаем время превью
-        this.currentTime = previewTime;
-        
-        // Устанавливаем длительность
-        const duration = Math.floor(videoElement.duration);
-        const minutes = Math.floor(duration / 60);
-        const seconds = duration % 60;
-        const formattedDuration = `${minutes}:${seconds.toString().padStart(2, '0')}`;
-        
-        durationElement.textContent = formattedDuration;
-        durationElement.style.display = 'block';
-        
-        console.log(`Длительность видео ${video.id}: ${formattedDuration}`);
-    });
-    
-    // Обработчик когда видео готово к отображению (на нужном кадре)
-    videoElement.addEventListener('seeked', function() {
-        console.log(`Видео ${video.id} перемотано на ${previewTime}s`);
-        
-        // Скрываем индикатор загрузки
-        loadingIndicator.style.display = 'none';
-        
-        // Показываем видео (fallback остается скрытым)
-        videoElement.style.display = 'block';
-    });
-    
-    // Обработчик ошибки видео (загрузка или перемотка)
-    videoElement.addEventListener('error', function(e) {
-        console.error(`Ошибка видео ${video.id}:`, e);
-        
-        // Скрываем индикатор загрузки
-        loadingIndicator.style.display = 'none';
-        
-        // Показываем fallback и ошибку
-        fallbackImage.style.display = 'block';
-        errorOverlay.style.display = 'flex';
-    });
-    
-    // Обработчик загрузки fallback изображения
-    fallbackImage.addEventListener('load', function() {
-        console.log(`Fallback изображение ${video.id} загружено`);
-        // Fallback изображение загружено, но показываем его только при ошибке видео
-    });
-    
-    // Обработчик ошибки загрузки fallback изображения
-    fallbackImage.addEventListener('error', function() {
-        console.error(`Ошибка загрузки fallback изображения ${video.id}`);
-        loadingIndicator.style.display = 'none';
-        errorOverlay.style.display = 'flex';
-    });
-    
-    // Таймаут для видео, которые долго загружаются (10 секунд)
-    setTimeout(() => {
-        if (videoElement.style.display === 'none' && loadingIndicator.style.display !== 'none') {
-            console.warn(`Видео ${video.id} не загрузилось за 10 секунд, показываем fallback`);
-            loadingIndicator.style.display = 'none';
-            fallbackImage.style.display = 'block';
-            errorOverlay.style.display = 'flex';
-        }
-    }, 10000);
     
     // Добавляем обработчик клика для перехода к странице просмотра видео
     previewElement.addEventListener('click', () => {
@@ -263,7 +263,12 @@ function switchCategory(categoryKey) {
     document.querySelector(`[data-category="${categoryKey}"]`).classList.add('active');
     
     // Перезагружаем видео для новой категории
-    loadVideoGrid();
+    loadVideoGrid().then(() => {
+        // Обновляем ленивую загрузку для новых элементов
+        setTimeout(() => {
+            updateLazyLoading();
+        }, 100);
+    });
     
     console.log(`Переключились на категорию: ${categoryKey}`);
 }
@@ -318,34 +323,110 @@ async function loadVideoGrid() {
         }
     }
 }
+// === СИСТЕМА ЛЕНИВОЙ ЗАГРУЗКИ ===
 
-// Настройка кнопки "ВЫБРАТЬ ШАБЛОН"
-function setupConfirmButton() {
-    const confirmButton = document.getElementById('mainConfirmButton');
+// Intersection Observer для ленивой загрузки превью
+let lazyLoadObserver = null;
+
+// Функция инициализации ленивой загрузки
+function initLazyLoading() {
+    // Проверяем поддержку Intersection Observer
+    if (!('IntersectionObserver' in window)) {
+        console.warn('IntersectionObserver не поддерживается, загружаем все изображения сразу');
+        loadAllImagesImmediately();
+        return;
+    }
     
-    confirmButton.addEventListener('click', () => {
-        if (selectedVideoId) {
-            // Находим выбранное видео по ID
-            const selectedVideo = videoData.find(video => video.id === selectedVideoId);
-            
-            if (selectedVideo) {
-                // Отправляем данные о выбранном видео обратно в Telegram-бот
-                tg.sendData(JSON.stringify({
-                    selected_video_id: selectedVideo.id,
-                    selected_video_title: selectedVideo.title
-                }));
-                
-                // Закрываем Mini App
-                tg.close();
+    // Создаем наблюдатель
+    lazyLoadObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                loadPreviewImage(entry.target);
+                lazyLoadObserver.unobserve(entry.target);
             }
-        } else {
-            alert('Пожалуйста, выберите шаблон');
-        }
+        });
+    }, {
+        // Загружаем изображения за 200px до появления в области видимости
+        rootMargin: '200px',
+        threshold: 0.1
     });
+    
+    // Наблюдаем за всеми превью элементами
+    document.querySelectorAll('.video-preview').forEach(element => {
+        lazyLoadObserver.observe(element);
+    });
+}
+
+// Функция загрузки превью изображения
+function loadPreviewImage(previewElement) {
+    const previewImage = previewElement.querySelector('.preview-image.lazy-load');
+    const loadingIndicator = previewElement.querySelector('.loading-indicator');
+    const placeholder = previewElement.querySelector('.preview-placeholder');
+    const errorOverlay = previewElement.querySelector('.error-overlay');
+    
+    if (!previewImage || !previewImage.dataset.src) {
+        console.warn('Нет данных для загрузки превью');
+        return;
+    }
+    
+    // Показываем индикатор загрузки
+    placeholder.style.display = 'none';
+    loadingIndicator.style.display = 'flex';
+    
+    // Обработчик успешной загрузки
+    previewImage.addEventListener('load', function() {
+        console.log(`Превью изображение загружено: ${previewImage.src}`);
+        loadingIndicator.style.display = 'none';
+        previewImage.style.display = 'block';
+    }, { once: true });
+    
+    // Обработчик ошибки загрузки
+    previewImage.addEventListener('error', function() {
+        console.error(`Ошибка загрузки превью: ${previewImage.src}`);
+        loadingIndicator.style.display = 'none';
+        errorOverlay.style.display = 'flex';
+    }, { once: true });
+    
+    // Таймаут для медленных соединений (5 секунд)
+    const timeout = setTimeout(() => {
+        if (loadingIndicator.style.display !== 'none') {
+            console.warn(`Превью долго загружается: ${previewImage.dataset.src}`);
+            loadingIndicator.style.display = 'none';
+            errorOverlay.style.display = 'flex';
+        }
+    }, 5000);
+    
+    // Убираем таймаут при успешной загрузке
+    previewImage.addEventListener('load', () => clearTimeout(timeout), { once: true });
+    previewImage.addEventListener('error', () => clearTimeout(timeout), { once: true });
+    
+    // Начинаем загрузку
+    previewImage.src = previewImage.dataset.src;
+    previewImage.classList.remove('lazy-load');
+}
+
+// Fallback для браузеров без поддержки Intersection Observer
+function loadAllImagesImmediately() {
+    document.querySelectorAll('.video-preview').forEach(previewElement => {
+        loadPreviewImage(previewElement);
+    });
+}
+
+// Функция для обновления ленивой загрузки после изменения содержимого
+function updateLazyLoading() {
+    if (lazyLoadObserver) {
+        // Наблюдаем за новыми элементами
+        document.querySelectorAll('.video-preview:not([data-observed])').forEach(element => {
+            element.setAttribute('data-observed', 'true');
+            lazyLoadObserver.observe(element);
+        });
+    }
 }
 
 // Загружаем категории и сетку видео при загрузке страницы
 document.addEventListener('DOMContentLoaded', async () => {
+    saveBotParamsFromURL();
+
     try {
         // Получаем категорию из URL хэша
         const hashCategory = getCategoryFromHash();
@@ -362,13 +443,22 @@ document.addEventListener('DOMContentLoaded', async () => {
         
         createCategoryButtons();
         await loadVideoGrid();
-        setupConfirmButton();
+        
+        // Инициализируем ленивую загрузку после создания элементов
+        setTimeout(() => {
+            initLazyLoading();
+        }, 100);
+        
     } catch (error) {
         console.error('Ошибка при инициализации приложения:', error);
         
         // Fallback - загружаем без избранного
         createCategoryButtons();
         await loadVideoGrid();
-        setupConfirmButton();
+        
+        // Все равно инициализируем ленивую загрузку
+        setTimeout(() => {
+            initLazyLoading();
+        }, 100);
     }
 }); 

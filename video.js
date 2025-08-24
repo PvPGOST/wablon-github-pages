@@ -19,6 +19,35 @@ if (isTelegramEnvironment) {
     };
 }
 
+function loadBotParams() {
+    // First try to get from global variable
+    if (window.botParams && window.botParams.saved) {
+        console.log('Loading bot params from global variable');
+        return window.botParams;
+    }
+    
+    // Fallback to localStorage
+    try {
+        const saved = localStorage.getItem('botParams');
+        if (saved) {
+            window.botParams = JSON.parse(saved);
+            console.log('Loading bot params from localStorage');
+            return window.botParams;
+        }
+    } catch (e) {
+        console.warn('Could not load from localStorage:', e);
+    }
+    
+    // If nothing found, return empty params
+    console.log('No bot params found');
+    return {
+        bot_id: null,
+        user_id: null,
+        message_id: null,
+        saved: false
+    };
+}
+
 // Запускаем всё после того как документ загрузится
 document.addEventListener('DOMContentLoaded', function() {
     // Проверяем, что переменная videoData существует
@@ -167,9 +196,6 @@ function displayVideo(video) {
                     <div class="video-loading-text">Загружаем видео...</div>
                 </div>
                 
-                <!-- Fallback изображение -->
-                <img class="video-fallback-image" src="${typeof UNIVERSAL_FALLBACK_IMAGE !== 'undefined' ? UNIVERSAL_FALLBACK_IMAGE : ''}" alt="${video.title}" style="display: none;">
-                
                 <!-- Основное видео -->
                 <video 
                     id="videoElement"
@@ -177,10 +203,13 @@ function displayVideo(video) {
                     muted 
                     loop 
                     playsinline
+                    preload="metadata"
                     style="width: 100%; min-height: 250px; max-height: 60vh; border: none !important; background-color: #000; object-fit: contain; display: none;">
                     <source src="${video.video_url}" type="video/mp4">
                     Ваш браузер не поддерживает видео.
                 </video>
+                
+                <!-- Fallback изображение убрано для оптимизации -->
                 
                 <!-- Overlay с ошибкой -->
                 <div class="video-error-overlay" style="display: none;">
@@ -191,57 +220,61 @@ function displayVideo(video) {
             </div>
         `;
         
-        const videoElement = document.getElementById('videoElement');
-        const loadingIndicator = videoContainer.querySelector('.video-loading-indicator');
-        const fallbackImage = videoContainer.querySelector('.video-fallback-image');
-        const errorOverlay = videoContainer.querySelector('.video-error-overlay');
-        
-        if (videoElement) {
-            // Обработчик успешной загрузки видео
-            videoElement.addEventListener('loadeddata', function() {
-                console.log('Основное видео загружено успешно');
-                
-                // Убеждаемся, что видео начинается с начала
-                this.currentTime = 0;
-                
-                loadingIndicator.style.display = 'none';
-                fallbackImage.style.display = 'none';
-                videoElement.style.display = 'block';
-            });
-            
-            // Обработчик клика для показа/скрытия контролов
-            videoElement.addEventListener('click', function() {
-                this.controls = !this.controls;
-                
-                if (this.controls) {
-                    setTimeout(() => {
-                        if (!this.paused) {
-                            this.controls = false;
-                        }
-                    }, 5000);
-                }
-            });
-            
-            // Обработчик ошибки загрузки видео
-            videoElement.addEventListener('error', function(e) {
-                console.error('Ошибка загрузки основного видео');
-                loadingIndicator.style.display = 'none';
-                fallbackImage.style.display = 'block';
-                errorOverlay.style.display = 'flex';
-            });
-            
-            // Обработчик загрузки fallback изображения
-            fallbackImage.addEventListener('load', function() {
-                console.log('Fallback изображение основного видео загружено');
-            });
-            
-            // Обработчик ошибки fallback изображения
-            fallbackImage.addEventListener('error', function() {
-                console.error('Ошибка загрузки fallback изображения основного видео');
-                loadingIndicator.style.display = 'none';
-                errorOverlay.style.display = 'flex';
-            });
-        }
+		const videoElement = document.getElementById('videoElement');
+		const loadingIndicator = videoContainer.querySelector('.video-loading-indicator');
+		const errorOverlay = videoContainer.querySelector('.video-error-overlay');
+
+		if (videoElement) {
+			const showVideo = () => {
+				loadingIndicator.style.display = 'none';
+				videoElement.style.display = 'block';
+			};
+
+			videoElement.addEventListener('loadeddata', function() {
+				console.log('Основное видео загружено успешно');
+				this.currentTime = 0;
+				showVideo();
+			});
+
+			videoElement.addEventListener('loadedmetadata', showVideo);
+			videoElement.addEventListener('canplay', showVideo);
+
+			videoElement.addEventListener('click', function() {
+				this.controls = !this.controls;
+				if (this.controls) {
+					setTimeout(() => {
+						if (!this.paused) {
+							this.controls = false;
+						}
+					}, 5000);
+				}
+			});
+
+			videoElement.addEventListener('error', function() {
+				console.error('Ошибка загрузки основного видео');
+				loadingIndicator.style.display = 'none';
+				
+				// Показываем текстовое сообщение об ошибке
+				errorOverlay.style.display = 'flex';
+			});
+
+			videoElement.muted = true;
+			videoElement.autoplay = true;
+			videoElement.playsInline = true;
+			videoElement.src = video.video_url;
+			videoElement.load();
+			videoElement.play().catch(() => {});
+
+			if (videoElement.readyState >= 2) {
+				showVideo();
+			}
+
+			setTimeout(() => {
+				if (videoElement.readyState >= 2) {
+					showVideo();
+				}
+			}, 1000);
+		}
     }
 }
 
@@ -265,7 +298,6 @@ function setupBackButton() {
 
 
 
-// Функция для настройки кнопки "Подтвердить"
 function setupConfirmButton(video) {
     const confirmButton = document.getElementById('confirmButton');
     if (!confirmButton) {
@@ -276,7 +308,7 @@ function setupConfirmButton(video) {
         confirmButton.style.display = 'none';
         return;
     }
-    
+
     // Отображаем кнопку
     confirmButton.style.display = 'block';
     
@@ -303,148 +335,70 @@ function setupConfirmButton(video) {
         document.body.appendChild(notificationElement);
         
         try {
-            // Извлекаем числовой ID из строки для формирования пути
-            const numericId = video.id.replace(/[^\d]/g, '');
+             // Получаем данные пользователя Telegram
+            let userData = null;
+            let telegramUserId = null;
             
-            // Формируем относительный путь для видео
-            const videoPath = `video_templates/template_${numericId}.mp4`;
+            if (isTelegramEnvironment && window.Telegram.WebApp.initDataUnsafe) {
+                // Получаем данные пользователя из Telegram WebApp
+                userData = window.Telegram.WebApp.initDataUnsafe.user;
+                telegramUserId = userData ? userData.id : null;
+                
+                console.log('Telegram user ID:', telegramUserId);
+            } else {
+                // Для разработки/тестирования - используем моковые данные
+                console.log('Mock environment - using test user ID');
+                telegramUserId = '0';
+                userData = {
+                    id: '0',
+                };
+            }
+            const botParams = loadBotParams();
             
-            // Данные для отправки (новая схема)
-            const dataToSend = {
-                'videoPath': videoPath,
-                'displayName': video.displayName || video.title // Используем displayName или fallback на title
+            // Формируем данные для отправки
+            const requestData = {
+                video_id: video.id,
+                bot_id: botParams.bot_id,
+                user_id: botParams.user_id,
+                message_id: botParams.message_id,
             };
             
-            // Отправляем данные в Telegram (правильный способ для Inline кнопок)
-            console.log('=== ОТПРАВКА ДАННЫХ В TELEGRAM ===');
-            console.log('window.Telegram доступен:', !!window.Telegram);
-            console.log('window.Telegram.WebApp доступен:', !!(window.Telegram && window.Telegram.WebApp));
-            console.log('Данные для отправки:', dataToSend);
+            const jsonData = JSON.stringify(requestData);
+            console.log('JSON для отправки:', jsonData);
             
-            if (window.Telegram && window.Telegram.WebApp) {
-                localStorage.setItem('lastSentData', JSON.stringify(dataToSend));
-                
-                const jsonData = JSON.stringify(dataToSend);
-                console.log('JSON для отправки:', jsonData);
-                
-                // Проверяем, есть ли query_id (для Inline Web Apps)
-                const initData = window.Telegram.WebApp.initData;
-                const initDataUnsafe = window.Telegram.WebApp.initDataUnsafe;
-                
-                console.log('initData:', initData);
-                console.log('initDataUnsafe:', initDataUnsafe);
-                console.log('query_id:', initDataUnsafe?.query_id);
-                
-                if (initDataUnsafe?.query_id) {
-                    // Это Inline Web App - используем answerWebAppQuery через сервер
-                    console.log('🔄 Отправляем данные через сервер (Inline режим)...');
-                    
-                    const payloadForServer = {
-                        query_id: initDataUnsafe.query_id,
-                        template_data: dataToSend
-                    };
-                    
-                    // Здесь должен быть запрос на ваш сервер
-                    // Пока что просто показываем, что получили query_id
-                    console.log('🚀 Query ID получен:', initDataUnsafe.query_id);
-                    console.log('📦 Payload для сервера:', payloadForServer);
-                    
-                    // РЕАЛЬНАЯ ОТПРАВКА: отправляем данные на сервер через fetch
-                    try {
-                        console.log('🎯 Отправляем данные на сервер...');
-                        
-                        // URL вашего сервера (замените на реальный при использовании ngrok)
-                        const serverUrl = 'http://localhost:8000/api/web-app-data';
-                        
-                        // Отправляем данные на сервер
-                        fetch(serverUrl, {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                            },
-                            body: JSON.stringify(payloadForServer)
-                        })
-                        .then(response => {
-                            console.log('📡 Ответ сервера:', response.status);
-                            if (response.ok) {
-                                console.log('✅ Данные успешно отправлены на сервер!');
-                                window.Telegram.WebApp.showAlert('✅ Шаблон отправлен на обработку!');
-                            } else {
-                                throw new Error(`Server error: ${response.status}`);
-                            }
-                            return response.json();
-                        })
-                        .then(data => {
-                            console.log('📊 Ответ сервера:', data);
-                        })
-                        .catch(error => {
-                            console.error('❌ Ошибка отправки на сервер:', error);
-                            
-                            // Fallback - показываем данные в алерте
-                            const message = `⚠️ Сервер недоступен
-✅ Шаблон: ${video.displayName || video.title}
-📁 Путь: ${videoPath}
-🆔 Query ID: ${initDataUnsafe.query_id}
-
-💡 Запустите сервер: python simple_server.py`;
-                            
-                            window.Telegram.WebApp.showAlert(message);
-                        });
-                        
-                        // Логируем все данные для отладки
-                        console.log('=' * 50);
-                        console.log('📊 ДАННЫЕ ДЛЯ ОТПРАВКИ:');
-                        console.log('Query ID:', initDataUnsafe.query_id);
-                        console.log('Video Path:', videoPath);
-                        console.log('Display Name:', video.displayName || video.title);
-                        console.log('Server URL:', serverUrl);
-                        console.log('Payload:', payloadForServer);
-                        console.log('=' * 50);
-                        
-                    } catch (error) {
-                        console.error('❌ Критическая ошибка:', error);
-                        window.Telegram.WebApp.showAlert(`Критическая ошибка: ${error.message}`);
-                    }
-                    
-                } else {
-                    // Это обычный Web App (Reply кнопка) - используем sendData
-                    console.log('📤 Отправляем данные через sendData (Reply режим)...');
-                    window.Telegram.WebApp.sendData(jsonData);
-                    console.log('sendData вызван успешно');
-                }
-                
-                // Принудительно закрываем Mini App через 3 секунды
-                setTimeout(() => {
-                    console.log('Закрываем Mini App...');
-                    if (window.Telegram.WebApp.close) {
-                        window.Telegram.WebApp.close();
-                    }
-                }, 3000);
-                
-                // Обновляем уведомление
-                notificationElement.textContent = 'Шаблон отправлен на обработку!';
+            // Отправляем POST на наш API через NGINX
+            const serverUrl = '/api/video_template';
+            fetch(serverUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: jsonData,
+            })
+            .then(async (response) => {
+                if (!response.ok) throw new Error(`Server error: ${response.status}`);
+                notificationElement.textContent = 'Отличный выбор!';
                 notificationElement.style.backgroundColor = 'rgba(0, 128, 0, 0.9)';
                 
-                // Показываем сообщение Telegram
-                window.Telegram.WebApp.showPopup({
-                    title: "Шаблон выбран",
-                    message: `Шаблон "${video.displayName || video.title}" отправлен на обработку!`,
-                    buttons: [{type: "ok"}]
-                });
+                // Закрываем Mini App после успешной отправки
+                setTimeout(() => {
+                    tg.close();
+                }, 1500); // Даем время показать уведомление, затем закрываем
                 
-                // Закрываем уведомление через 3 секунды
+                return response.text().catch(() => '');
+            })
+            .catch((error) => {
+                console.error('Ошибка отправки:', error);
+                notificationElement.textContent = `Ошибка отправки: ${error.message}`;
+                notificationElement.style.backgroundColor = 'rgba(200, 0, 0, 0.9)';
+            })
+            .finally(() => {
                 setTimeout(() => {
                     notificationElement.style.opacity = '0';
                     notificationElement.style.transition = 'opacity 0.5s';
-                    
-                    setTimeout(() => {
-                        notificationElement.remove();
-                    }, 500);
+                    setTimeout(() => notificationElement.remove(), 500);
                 }, 3000);
-            } else {
-                throw new Error('Telegram WebApp API не доступен');
-            }
+            });
         } catch (error) {
+            console.error('Ошибка:', error);
             notificationElement.textContent = `Ошибка: ${error.message}`;
             notificationElement.style.backgroundColor = 'rgba(200, 0, 0, 0.9)';
             
@@ -537,16 +491,14 @@ function setupFavoriteButton(video) {
 function setupLikeButton(video) {
     const likeButton = document.getElementById('likeButton');
     const likeIcon = likeButton?.querySelector('.like-icon');
-    const likeCount = document.getElementById('likeCount');
     
     if (!likeButton || !video) {
         return;
     }
     
-    // Функция для обновления состояния кнопки
+    // Функция для обновления состояния кнопки (только иконка)
     function updateLikeButton() {
         const isLiked = (typeof isVideoLiked === 'function') ? isVideoLiked(video.id) : false;
-        const likes = (typeof getVideoLikes === 'function') ? getVideoLikes(video.id) : (video.likes || 0);
         
         if (isLiked) {
             likeIcon.textContent = '❤️';
@@ -554,10 +506,6 @@ function setupLikeButton(video) {
         } else {
             likeIcon.textContent = '🤍';
             likeButton.classList.remove('like-active');
-        }
-        
-        if (likeCount) {
-            likeCount.textContent = likes;
         }
     }
     

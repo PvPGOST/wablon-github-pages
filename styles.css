@@ -120,14 +120,7 @@ body {
     text-shadow: 0 0 4px rgba(0, 0, 0, 0.8);
 }
 
-/* Стили для fallback изображения */
-.fallback-image {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    border-radius: 12px;
-    opacity: 0.9;
-}
+/* Fallback изображения убраны для оптимизации */
 
 /* Стили для отображения длительности видео на превью */
 .video-preview .video-duration {
@@ -508,12 +501,7 @@ video {
     text-shadow: 0 0 4px rgba(0, 0, 0, 0.8);
 }
 
-.video-fallback-image {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    opacity: 0.8;
-}
+/* video-fallback-image убрано */
 
 .video-error-overlay {
     position: absolute;

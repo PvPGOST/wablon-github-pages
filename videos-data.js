@@ -1,51 +1,50 @@
-// Универсальное fallback изображение для всех видео
-const UNIVERSAL_FALLBACK_IMAGE = "https://i.ibb.co/bMy6p7zV/20250712-1125-simple-compose-01jzyvrr00fmd9nx0y3x5yb2n0.png";
-
-// Функция для получения универсального fallback изображения
-function getUniversalFallbackImage() {
-    return UNIVERSAL_FALLBACK_IMAGE;
-}
+// Fallback изображение убрано для оптимизации производительности
+// При ошибке загрузки показывается только текстовое сообщение
 
 // Данные о видео шаблонах
 const videoData = [
   {
     "id": "video1",
-    "video_url": "https://raw.githubusercontent.com/PvPGOST/wablon-github-pages/main/videos/video_templates/template_1.mp4",
+    "video_url": "/video/videos/video_templates/template_1.mp4",
+    "preview_image": "/video/videos/previews/template_1_preview.jpg", // Статичное превью
     "title": "Номер 331",
     "displayName": "Элегантный шаблон №1", // Красивое название для пользователя
     "duration": 10, // Длительность в секундах
     "categories": ["new", "short", "solo_female"], // Может быть в нескольких категориях
-    "preview_time": 2.5,
+
     "likes": 1010 // Количество лайков
   },
   {
     "id": "video2",
-    "video_url": "https://raw.githubusercontent.com/PvPGOST/wablon-github-pages/main/videos/video_templates/template_2.mp4",
+    "video_url": "/video/videos/video_templates/template_2.mp4",
+    "preview_image": "/video/videos/previews/template_2_preview.jpg", // Статичное превью
     "title": "Номер 332",
     "displayName": "Страстный шаблон №2", // Красивое название для пользователя
     "duration": 18, // Длительность в секундах
     "categories": ["new", "short", "couple"], // Только новое, популярность определяется автоматически
-    "preview_time": 1.8,
+
     "likes": 8744 // Количество лайков
   },
   {
     "id": "video3",
-    "video_url": "https://raw.githubusercontent.com/PvPGOST/wablon-github-pages/main/videos/video_templates/template_3.mp4",
+    "video_url": "/video/videos/video_templates/template_3.mp4",
+    "preview_image": "/video/videos/previews/template_3_preview.jpg", // Статичное превью
     "title": "Номер 333",
     "displayName": "Премиум шаблон №3", // Красивое название для пользователя
     "duration": 185, // Длительность в секундах
     "categories": ["long", "oral", "solo_female", "fetish"], // Только длинное, популярность определяется автоматически
-    "preview_time": 3.2,
+
     "likes": 15624 // Количество лайков
   },
   {
     "id": "video4",
-    "video_url": "https://raw.githubusercontent.com/PvPGOST/wablon-github-pages/main/videos/video_templates/template_4.mp4",
+    "video_url": "/video/videos/video_templates/template_4.mp4",
+    "preview_image": "/video/videos/previews/template_4_preview.jpg", // Статичное превью
     "title": "Номер 334",
     "displayName": "Интимный шаблон №4", // Красивое название для пользователя
     "duration": 25, // Длительность в секундах
     "categories": ["short", "couple"], // Только короткое, популярность определяется автоматически
-    "preview_time": 0.8,
+
     "likes": 731 // Количество лайков
   }
 ];
@@ -414,14 +413,12 @@ window.checkSystemStatus = function() {
   "displayName": "КРАСИВОЕ НАЗВАНИЕ ДЛЯ ПОЛЬЗОВАТЕЛЯ", // Показывается при отправке в Telegram
   "duration": 30, // Длительность в секундах (1 секунда = 50 токенов)
   "categories": ["ВЫБЕРИ_КАТЕГОРИИ"], // Скопируй нужные из списка выше
-  "preview_time": 2.5, // Секунда для превью (можно с десятыми)
+  "preview_image": "/video/videos/previews/NEW_ID_preview.jpg", // Статичное превью
   "likes": 0 // Начальное количество лайков
 }
 
 ВАЖНО: 
-- УНИВЕРСАЛЬНЫЙ FALLBACK: Используется одно изображение для всех видео (UNIVERSAL_FALLBACK_IMAGE)
-- preview_url УБРАНО - больше не нужно, используется только универсальный fallback
-- preview_time определяет какой кадр показывать в превью
+- preview_image - статичное превью изображение для быстрой загрузки
 - duration - длительность в секундах, автоматически рассчитывается в токены (1 сек = 50 токенов)
 - displayName - красивое название, которое показывается пользователю при выборе шаблона
 - title - техническое название для интерфейса приложения
@@ -431,11 +428,10 @@ window.checkSystemStatus = function() {
 - Лайки показывают популярность видео для всех пользователей
 - Лайки пользователя сохраняются в localStorage (в будущем - на сервере)
 
-СИСТЕМА FALLBACK:
-- Если видео не загрузится, показывается универсальное изображение
-- Универсальный fallback: https://i.ibb.co/bMy6p7zV/20250712-1125-simple-compose-01jzyvrr00fmd9nx0y3x5yb2n0.png
-- Функция getUniversalFallbackImage() возвращает URL универсального fallback
-- Можно изменить UNIVERSAL_FALLBACK_IMAGE в начале файла для смены изображения
+ОПТИМИЗИРОВАННАЯ СИСТЕМА ПРЕВЬЮ:
+- Статичные превью изображения вместо видео для мгновенной загрузки
+- Ленивая загрузка - изображения загружаются только при прокрутке
+- Fallback изображения убраны для максимальной производительности
 
 НОВАЯ СХЕМА ОТПРАВКИ ДАННЫХ:
 При выборе видео отправляется:
