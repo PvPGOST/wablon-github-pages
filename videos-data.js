@@ -5,8 +5,8 @@
 const videoData = [
   {
     "id": "video1",
-    "video_url": "/video/videos/video_templates/template_1.mp4",
-    "preview_image": "/video/videos/previews/template_1_preview.jpg", // Статичное превью
+    "video_url": "/video/video_templates/template_1.mp4",
+    "preview_image": "/video/previews/template_1_preview.jpg", // Статичное превью
     "title": "Номер 331",
     "displayName": "Элегантный шаблон №1", // Красивое название для пользователя
     "duration": 10, // Длительность в секундах
