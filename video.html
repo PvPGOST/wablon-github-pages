@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Просмотр видео</title>
+    <link rel="stylesheet" href="styles.css?v=3.7">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="videos-data.js"></script>
+
+
+</head>
+<body>
+    <div class="container">
+        <div class="navigation-bar">
+            <div id="backButton" class="back-button">Назад</div>
+            <!-- <div class="video-navigation">
+                <div id="prevButton" class="prev-button">◀ Пред.</div>
+                <div id="nextButton" class="next-button">След. ▶</div>
+            </div> -->
+        </div>
+        
+        <div class="video-player-container">
+            <div id="videoContainer" class="video-player"></div>
+        </div>
+        
+        <div class="video-info">
+            <div class="video-header">
+                <div>
+                    <div id="videoTitle" class="video-number"></div>
+                    <div id="videoDescription" class="video-duration">Длительность видео</div>
+                </div>
+                <div class="video-actions">
+                    <button id="favoriteButton" class="favorite-button-video">
+                        <span class="favorite-icon">☆</span>
+                    </button>
+                    <div class="likes-container-video">
+                        <button id="likeButton" class="like-button-video">
+                            <span class="like-icon">🤍</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <button id="confirmButton" class="confirm-button">ВЫБРАТЬ ШАБЛОН</button>
+        </div>
+    </div>
+
+    <script type="module" src="stagewise-init.js"></script>
+    <script src="video.js"></script>
+</body>
+</html> 
